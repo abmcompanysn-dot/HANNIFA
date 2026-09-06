@@ -1,0 +1,227 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sand-50: #f9f4ea;
+  --color-sand-100: #f3ebdc;
+  --color-sand-200: #eadcc4;
+  --color-sand-300: #ddc9a6;
+  --color-sand-400: #c9ae7e;
+  --color-cocoa-300: #b0946f;
+  --color-cocoa-500: #7a5c3e;
+  --color-cocoa-700: #4e3826;
+  --color-cocoa-800: #3c2a1b;
+  --color-cocoa-900: #2e1f13;
+  --color-cocoa-950: #221710;
+  --color-cognac-300: #d3a465;
+  --color-cognac-400: #c08a45;
+  --color-cognac-500: #a87437;
+  --color-cognac-600: #8f5f28;
+  --color-cognac-700: #744c1f;
+
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Jost", "Segoe UI", Tahoma, sans-serif;
+
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-kenburns: kenburns 24s ease-in-out infinite alternate;
+  --animate-spin-slow: spin 26s linear infinite;
+  --animate-float: floaty 7s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes kenburns {
+  from {
+    transform: scale(1.03) translateY(0);
+  }
+  to {
+    transform: scale(1.15) translateY(-2.5%);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(168, 116, 55, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(168, 116, 55, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(168, 116, 55, 0);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-sand-100 text-cocoa-800 font-body antialiased;
+  background-image: radial-gradient(
+      ellipse 80% 60% at 85% -10%,
+      rgba(168, 116, 55, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(ellipse 60% 50% at -10% 30%, rgba(122, 92, 62, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: #a87437;
+  color: #f9f4ea;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #eadcc4;
+}
+::-webkit-scrollbar-thumb {
+  background: #b0946f;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7a5c3e;
+}
+
+/* ---------- signature shapes ---------- */
+.arch {
+  border-radius: 1000px 1000px 20px 20px;
+}
+.arch-sm {
+  border-radius: 400px 400px 12px 12px;
+}
+
+/* ---------- grain overlay ---------- */
+.noise-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
+}
+
+/* ---------- scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rv-delay, 0ms);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* line-mask title reveal */
+.mask-line {
+  display: block;
+  overflow: hidden;
+}
+.mask-line > span {
+  display: block;
+  transform: translateY(110%);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rv-delay, 0ms);
+}
+.is-in .mask-line > span,
+.mask-line.is-in > span {
+  transform: translateY(0);
+}
+
+/* ---------- UI atoms ---------- */
+.eyebrow {
+  @apply text-[11px] font-medium uppercase tracking-[0.32em] text-cognac-600;
+}
+
+.btn-primary {
+  @apply inline-flex cursor-pointer items-center justify-center gap-3 bg-cocoa-800 px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-sand-100 transition-all duration-300 hover:bg-cognac-600 hover:tracking-[0.3em] active:scale-[0.97];
+}
+.btn-ghost {
+  @apply inline-flex cursor-pointer items-center justify-center gap-3 border border-cocoa-800/30 bg-transparent px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-800 transition-all duration-300 hover:border-cocoa-800 hover:bg-cocoa-800 hover:text-sand-100 active:scale-[0.97];
+}
+.btn-light {
+  @apply inline-flex cursor-pointer items-center justify-center gap-3 bg-sand-100 px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-900 transition-all duration-300 hover:bg-cognac-300 active:scale-[0.97];
+}
+
+.field {
+  @apply w-full rounded-[3px] border border-sand-300 bg-sand-50/80 px-4 py-3 text-[15px] text-cocoa-900 transition outline-none placeholder:text-cocoa-500/45 focus:border-cognac-500 focus:ring-2 focus:ring-cognac-500/20;
+}
+.label {
+  @apply mb-2 block text-[11px] font-medium uppercase tracking-[0.2em] text-cocoa-500;
+}
+
+.chip {
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-full border border-sand-300 bg-sand-50/60 px-4 py-2 text-[12px] uppercase tracking-[0.14em] text-cocoa-700 transition-all duration-300 hover:border-cognac-500 hover:text-cognac-600;
+}
+.chip-on {
+  @apply border-cocoa-800 bg-cocoa-800 text-sand-100 hover:border-cocoa-800 hover:text-sand-100;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.check-path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: check-draw 0.7s 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.toast-in {
+  animation: toast-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pulse-dot {
+  animation: pulse-ring 2s infinite;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal,
+  .mask-line > span {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
