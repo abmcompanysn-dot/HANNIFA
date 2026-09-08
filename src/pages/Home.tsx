@@ -198,25 +198,28 @@ export default function Home() {
             />
             <Reveal delay={200}>
               <p className="mt-7 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
-                Née d'un héritage familial de couturières, la maison HANI&rsquo;S marie les
-                techniques de la haute couture aux tissus d'exception — bazin riche, soie
-                sauvage, crêpe de Médine. Chaque commande naît d'une écoute : vos mesures,
-                votre tissu, vos envies.
+                La maison HANI&rsquo;S marie les techniques de la haute couture aux tissus
+                d'exception — bazin riche, soie sauvage, crêpe de Médine. Émus et inspirés par
+                cet artisanat, nous mettons notre passion du bel habit et des accessoires au
+                service de votre style.
               </p>
               <p className="mt-4 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
-                De la robe de cérémonie au grand boubou brodé, rien ne sort de l'atelier sans
-                avoir été vérifié, repassé et ajusté à la main.
+                Chaque commande naît d'une véritable écoute : vos mesures, votre tissu, vos
+                envies. De la robe de cérémonie au grand boubou brodé, nous concevons des
+                vêtements décents, élégants et très bien taillés pour sublimer les femmes et
+                les hommes. Rien ne sort de l'atelier sans avoir été vérifié, repassé et
+                soigneusement ajusté à la main.
               </p>
             </Reveal>
 
             <div className="mt-12 grid max-w-xl grid-cols-3 divide-x divide-sand-300/80 border-y border-sand-300/80">
               {[
-                { n: "1 200+", l: "créations livrées" },
-                { n: "15", l: "artisans à l'atelier" },
-                { n: "100 %", l: "cousu main à Bobo-Dioulasso" },
+                { n: "Des milliers", l: "de créations déjà livrées" },
+                { n: "Plusieurs", l: "artisans et ateliers partenaires" },
+                { n: "100 %", l: "confection sur mesure et fait main" },
               ].map((s, i) => (
                 <Reveal key={s.l} delay={i * 120} className={`py-6 ${i > 0 ? "pl-5" : ""}`}>
-                  <p className="font-display text-4xl font-semibold text-cocoa-900">{s.n}</p>
+                  <p className="font-display text-3xl font-semibold text-cocoa-900">{s.n}</p>
                   <p className="mt-1 text-[12px] tracking-wide text-cocoa-500">{s.l}</p>
                 </Reveal>
               ))}
@@ -224,10 +227,12 @@ export default function Home() {
 
             <Reveal delay={300}>
               <p className="font-display mt-10 text-2xl text-cocoa-800 italic">
-                « Une tenue HANI&rsquo;S ne se porte pas, elle se transmet. »
+                « Notre maison est née du regroupement d'artisans mus par une même passion :
+                l'amour du beau geste, des vêtements décents et des accessoires élégants,
+                conçus pour vous sublimer au quotidien comme lors de vos grands événements. »
               </p>
               <p className="mt-2 text-[12px] tracking-[0.24em] text-cocoa-500 uppercase">
-                — Hani, fondatrice de la maison
+                — La maison HANI&rsquo;S
               </p>
             </Reveal>
           </div>
