@@ -1,21 +1,25 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { PAYMENTS, fmtPrice } from "../data/catalog";
-import { useStore, type Customer, type Order } from "../context/StoreContext";
+import { useStore, type Customer } from "../context/StoreContext";
+import {
+  createOrder,
+  createCustomOrder,
+  ABMCYApiError,
+  type Order as ApiOrder,
+} from "../services/abmcy";
 import { Reveal } from "../components/Reveal";
-import { IconArrow, IconBag, IconCard, IconCheck, IconPhone } from "../components/Icons";
+import { IconArrow, IconBag, IconCheck } from "../components/Icons";
 
 export default function Commander() {
-  const { cart, cartTotal, customer, placeOrder, toast } = useStore();
+  const { cart, cartTotal, customer, clearCart, toast } = useStore();
 
   const [form, setForm] = useState<Customer>(
     customer ?? { name: "", phone: "", email: "", address: "", city: "", note: "" }
   );
   const [payment, setPayment] = useState("wave");
-  const [mmPhone, setMmPhone] = useState(customer?.phone ?? "");
-  const [cardNum, setCardNum] = useState("");
   const [processing, setProcessing] = useState(false);
-  const [placed, setPlaced] = useState<Order | null>(null);
+  const [placed, setPlaced] = useState<ApiOrder | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   /* ------- écran de confirmation ------- */
@@ -30,13 +34,14 @@ export default function Commander() {
           </span>
           <p className="eyebrow mt-8">Confirmation automatique envoyée</p>
           <h1 className="font-display mt-3 text-5xl font-semibold text-cocoa-900 sm:text-6xl">
-            Merci, {placed.customer.name.split(" ")[0]} !
+            Merci, {placed.customer_name.split(" ")[0]} !
           </h1>
           <p className="mt-5 text-[15.5px] leading-relaxed text-cocoa-700">
-            Votre commande <strong className="font-semibold text-cocoa-900">{placed.id}</strong> d'un
-            montant de <strong className="font-semibold text-cocoa-900">{fmtPrice(placed.total)}</strong>{" "}
-            est enregistrée. Une confirmation vient d'être envoyée par e-mail et WhatsApp —
-            l'atelier vous contacte sous 2 h pour valider les détails.
+            Votre commande <strong className="font-semibold text-cocoa-900">{placed.order_number}</strong> d'un
+            montant de <strong className="font-semibold text-cocoa-900">{fmtPrice(placed.total_amount)}</strong>{" "}
+            est enregistrée. Une confirmation vient d'être envoyée par e-mail —
+            l'atelier vous contacte sous 2 h pour valider les détails. Vous réglerez à la
+            livraison.
           </p>
           <div className="mx-auto mt-9 max-w-sm border border-sand-300/80 bg-sand-50/70 p-6 text-left">
             <p className="text-[11px] tracking-[0.24em] text-cocoa-500 uppercase">Prochaines étapes</p>
@@ -44,7 +49,7 @@ export default function Commander() {
               {[
                 "Validation de la commande par l'atelier",
                 "Confection et couture à la main",
-                "Expédition avec suivi jusqu'à votre porte",
+                "Expédition avec suivi jusqu'à votre porte — paiement à la livraison",
               ].map((s, i) => (
                 <li key={s} className="flex items-center gap-3">
                   <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-cocoa-800 text-[11px] font-semibold text-sand-100">
@@ -88,33 +93,74 @@ export default function Commander() {
   }
 
   const pay = PAYMENTS.find((p) => p.id === payment)!;
-  const isMobileMoney = payment !== "card";
 
-  const submit = () => {
+  const submit = async () => {
     setError(null);
     if (!form.name.trim() || !form.phone.trim() || !form.address.trim()) {
       setError("Nom, téléphone et adresse de livraison sont nécessaires pour la commande.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    if (isMobileMoney && mmPhone.trim().length < 9) {
-      setError("Indiquez le numéro de compte mobile money à débiter.");
-      return;
-    }
-    if (payment === "card" && cardNum.replace(/\s/g, "").length < 12) {
-      setError("Vérifiez le numéro de votre carte bancaire.");
-      return;
-    }
+
     setProcessing(true);
-    setTimeout(() => {
-      const order = placeOrder(form, payment, pay.name);
-      setProcessing(false);
-      if (order) {
-        setPlaced(order);
-        toast(`Commande ${order.id} confirmée — reçu envoyé`);
-        window.scrollTo({ top: 0, behavior: "auto" });
+    try {
+      const shipping_address = form.city.trim()
+        ? `${form.address.trim()}, ${form.city.trim()}`
+        : form.address.trim();
+      const notePrefix = `Paiement à la livraison — ${pay.name}.`;
+      const notes = form.note?.trim() ? `${notePrefix} ${form.note.trim()}` : notePrefix;
+
+      const customItem = cart.find((i) => i.kind === "custom" && i.custom);
+      let order: ApiOrder;
+
+      if (customItem?.custom) {
+        const c = customItem.custom;
+        const measurements: Record<string, number> = {};
+        for (const [k, v] of Object.entries(c.measurements)) {
+          const n = parseFloat(v);
+          if (!Number.isNaN(n)) measurements[k] = n;
+        }
+        const fabricSourceMap: Record<string, "maison" | "envoi_photo" | "conseil_atelier"> = {
+          maison: "maison",
+          envoi: "envoi_photo",
+          conseil: "conseil_atelier",
+        };
+
+        order = await createCustomOrder({
+          customer_name: form.name.trim(),
+          customer_phone: form.phone.trim(),
+          customer_email: form.email.trim() || undefined,
+          shipping_address,
+          total_amount: cartTotal,
+          measurements,
+          fabric_source: fabricSourceMap[c.fabricSource],
+          notes,
+        });
+      } else {
+        order = await createOrder({
+          customer_name: form.name.trim(),
+          customer_phone: form.phone.trim(),
+          customer_email: form.email.trim() || undefined,
+          total_amount: cartTotal,
+          shipping_address,
+          notes,
+        });
       }
-    }, 1700);
+
+      clearCart();
+      setPlaced(order);
+      toast(`Commande ${order.order_number} confirmée — reçu envoyé`);
+      window.scrollTo({ top: 0, behavior: "auto" });
+    } catch (e) {
+      setError(
+        e instanceof ABMCYApiError
+          ? e.message
+          : "Une erreur est survenue lors de l'envoi de la commande. Votre panier a été conservé, réessayez."
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -173,6 +219,9 @@ export default function Commander() {
               <h2 className="font-display flex items-baseline gap-4 text-3xl font-semibold text-cocoa-900">
                 <span className="font-display text-lg text-cognac-600 italic">02</span> Paiement
               </h2>
+              <p className="mt-3 text-sm text-cocoa-600">
+                Paiement à la livraison — indiquez votre moyen préféré, le livreur s'en occupera.
+              </p>
               <div className="mt-7 grid gap-4 sm:grid-cols-2">
                 {PAYMENTS.map((p) => (
                   <button
@@ -190,7 +239,7 @@ export default function Commander() {
                       }`}
                       style={{ background: payment === p.id ? undefined : p.color, color: payment === p.id ? p.color : undefined }}
                     >
-                      {p.id === "card" ? <IconCard size={20} /> : p.id === "om" ? "OM" : p.id === "free" ? "FREE" : p.name.slice(0, 4).toUpperCase()}
+                      {p.id === "card" ? "CB" : p.id === "om" ? "OM" : p.id === "free" ? "FREE" : p.name.slice(0, 4).toUpperCase()}
                     </span>
                     <span>
                       <span className="block text-[15px] font-semibold">{p.name}</span>
@@ -206,47 +255,9 @@ export default function Commander() {
               </div>
 
               <div className="mt-6 border border-sand-300/80 bg-sand-100/70 p-5">
-                <p className="text-sm text-cocoa-700">{pay.hint}</p>
-                {isMobileMoney ? (
-                  <div className="mt-4 max-w-sm">
-                    <label className="label">Numéro {pay.name} à débiter</label>
-                    <div className="relative">
-                      <IconPhone size={16} className="absolute top-1/2 left-4 -translate-y-1/2 text-cocoa-500" />
-                      <input
-                        className="field pl-11"
-                        type="tel"
-                        value={mmPhone}
-                        onChange={(e) => setMmPhone(e.target.value)}
-                        placeholder="77 000 00 00"
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-4 grid max-w-lg gap-4 sm:grid-cols-[1fr_110px_90px]">
-                    <div className="sm:col-span-3">
-                      <label className="label">Numéro de carte</label>
-                      <input
-                        className="field"
-                        inputMode="numeric"
-                        value={cardNum}
-                        onChange={(e) =>
-                          setCardNum(
-                            e.target.value.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim()
-                          )
-                        }
-                        placeholder="4242 4242 4242 4242"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="label">Expiration</label>
-                      <input className="field" placeholder="MM / AA" />
-                    </div>
-                    <div>
-                      <label className="label">CVV</label>
-                      <input className="field" inputMode="numeric" placeholder="123" />
-                    </div>
-                  </div>
-                )}
+                <p className="text-sm text-cocoa-700">
+                  Vous réglerez <strong>{fmtPrice(cartTotal)}</strong> directement au livreur, en {pay.name.toLowerCase()}, à la réception de votre commande.
+                </p>
               </div>
             </section>
           </Reveal>
@@ -289,16 +300,16 @@ export default function Commander() {
               {processing ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-sand-100/40 border-t-sand-100" />
-                  Paiement sécurisé…
+                  Envoi de la commande…
                 </>
               ) : (
                 <>
-                  Payer {fmtPrice(cartTotal)} <IconArrow size={15} />
+                  Confirmer — paiement à la livraison <IconArrow size={15} />
                 </>
               )}
             </button>
             <p className="mt-4 text-center text-[11.5px] leading-relaxed text-cocoa-500">
-              Confirmation automatique par e-mail & WhatsApp.
+              Confirmation automatique par e-mail.
               <br />
               Retouches incluses sous 15 jours.
             </p>

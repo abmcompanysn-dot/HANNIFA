@@ -1,13 +1,15 @@
-import { useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   FABRICS,
   MEASURES_FEMME,
   MEASURES_HOMME,
-  PRODUCTS,
   fmtPrice,
 } from "../data/catalog";
+import type { Product as UiProduct } from "../data/catalog";
 import { useStore } from "../context/StoreContext";
+import { listProducts, uploadFabricPhoto, ABMCYApiError } from "../services/abmcy";
+import { mapProducts } from "../lib/mapProduct";
 import { MaskLines, Reveal } from "../components/Reveal";
 import {
   IconArrow,
@@ -51,9 +53,24 @@ export default function SurMesure() {
   const [params] = useSearchParams();
   const { addToCart, toast } = useStore();
 
+  const [products, setProducts] = useState<UiProduct[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    listProducts()
+      .then((list) => {
+        if (!cancelled) setProducts(mapProducts(list));
+      })
+      .catch(() => {
+        if (!cancelled) setProducts([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const forModel = useMemo(
-    () => PRODUCTS.find((p) => p.id === params.get("modele")) ?? null,
-    [params]
+    () => products.find((p) => p.id === params.get("modele")) ?? null,
+    [products, params]
   );
 
   const [step, setStep] = useState(1);
@@ -74,6 +91,10 @@ export default function SurMesure() {
   const [fabricId, setFabricId] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [fabricFile, setFabricFile] = useState<File | null>(null);
+  const [fabricUploadUrl, setFabricUploadUrl] = useState<string | null>(null);
+  const [fabricUploading, setFabricUploading] = useState(false);
+  const [fabricUploadError, setFabricUploadError] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -87,12 +108,15 @@ export default function SurMesure() {
     const f = e.target.files?.[0];
     if (!f) return;
     setFileName(f.name);
+    setFabricFile(f);
+    setFabricUploadUrl(null);
+    setFabricUploadError(null);
     const reader = new FileReader();
     reader.onload = () => setFilePreview(reader.result as string);
     reader.readAsDataURL(f);
   };
 
-  const next = () => {
+  const next = async () => {
     setError(null);
     if (step === 1) {
       if (!contact.name.trim() || !contact.phone.trim() || !contact.address.trim()) {
@@ -109,12 +133,34 @@ export default function SurMesure() {
         setError("Téléchargez une photo de votre tissu pour continuer.");
         return;
       }
+      // Upload réel de la photo du tissu vers R2 avant de continuer
+      if (fabricSource === "envoi" && fabricFile && !fabricUploadUrl) {
+        setFabricUploading(true);
+        setFabricUploadError(null);
+        try {
+          const result = await uploadFabricPhoto(fabricFile);
+          setFabricUploadUrl(result.url);
+        } catch (e) {
+          setFabricUploading(false);
+          setFabricUploadError(
+            e instanceof ABMCYApiError
+              ? e.message
+              : "Impossible d'envoyer la photo du tissu pour le moment."
+          );
+          return;
+        }
+        setFabricUploading(false);
+      }
     }
     setStep(Math.min(4, step + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const submit = () => {
+    const fabricNote =
+      fabricSource === "envoi" && fabricUploadUrl ? `Photo du tissu envoyée : ${fabricUploadUrl}.` : "";
+    const fullComment = [fabricNote, comment.trim()].filter(Boolean).join(" ");
+
     addToCart({
       key: `custom-${Date.now()}`,
       kind: "custom",
@@ -131,7 +177,7 @@ export default function SurMesure() {
         fabricSource,
         fabricName: fabricSource === "maison" && fabric ? `${fabric.name} — ${fabric.tone}` : undefined,
         fabricFileName: fabricSource === "envoi" ? fileName ?? undefined : undefined,
-        comment: comment.trim() || undefined,
+        comment: fullComment || undefined,
       },
     });
     toast("Votre création sur mesure a été ajoutée au panier");
@@ -592,6 +638,20 @@ export default function SurMesure() {
                       </label>
                     )}
                     <input id="fabric-file" type="file" accept="image/*" className="hidden" onChange={onFile} />
+                    {fabricUploading && (
+                      <p className="mt-3 flex items-center gap-2 text-[12.5px] text-cocoa-600">
+                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-sand-300 border-t-cognac-600" />
+                        Envoi de la photo en cours…
+                      </p>
+                    )}
+                    {fabricUploadUrl && !fabricUploading && (
+                      <p className="mt-3 flex items-center gap-2 text-[12.5px] text-cognac-700">
+                        <IconCheck size={14} /> Photo envoyée avec succès.
+                      </p>
+                    )}
+                    {fabricUploadError && (
+                      <p className="mt-3 text-[12.5px] text-cognac-700">{fabricUploadError}</p>
+                    )}
                   </div>
                 )}
 
@@ -697,8 +757,17 @@ export default function SurMesure() {
               Retour
             </button>
             {step < 4 && (
-              <button onClick={next} className="btn-primary">
-                Continuer <IconArrow size={15} />
+              <button onClick={next} disabled={fabricUploading} className="btn-primary disabled:cursor-wait disabled:opacity-80">
+                {fabricUploading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-sand-100/40 border-t-sand-100" />
+                    Envoi en cours…
+                  </>
+                ) : (
+                  <>
+                    Continuer <IconArrow size={15} />
+                  </>
+                )}
               </button>
             )}
           </div>

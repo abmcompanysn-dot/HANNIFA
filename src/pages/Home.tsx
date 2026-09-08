@@ -1,6 +1,9 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { GALLERY, PRODUCTS, TESTIMONIALS, fmtPrice } from "../data/catalog";
+import { TESTIMONIALS, fmtPrice } from "../data/catalog";
+import type { Product as UiProduct } from "../data/catalog";
+import { listProducts, listGallery, type GalleryItem } from "../services/abmcy";
+import { mapProducts } from "../lib/mapProduct";
 import { MaskLines, Reveal } from "../components/Reveal";
 import ProductCard from "../components/ProductCard";
 import {
@@ -26,8 +29,33 @@ const MARQUEE = [
 
 export default function Home() {
   const rowRef = useRef<HTMLDivElement>(null);
-  const news = PRODUCTS.filter((p) => p.isNew);
-  const best = PRODUCTS.filter((p) => p.isBest).slice(0, 4);
+  const [products, setProducts] = useState<UiProduct[]>([]);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listProducts()
+      .then((list) => {
+        if (!cancelled) setProducts(mapProducts(list));
+      })
+      .catch(() => {
+        if (!cancelled) setProducts([]);
+      });
+    listGallery()
+      .then((list) => {
+        if (!cancelled) setGallery(list);
+      })
+      .catch(() => {
+        if (!cancelled) setGallery([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const news = products.filter((p) => p.isNew);
+  const best = products.filter((p) => p.isBest).slice(0, 4);
+  const teaser = gallery.slice(0, 3);
   const scrollRow = (dir: number) => rowRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
 
   return (
@@ -288,82 +316,86 @@ export default function Home() {
       </section>
 
       {/* ================= NOUVEAUTÉS ================= */}
-      <section className="pt-24 lg:pt-32">
-        <div className="mx-auto flex max-w-7xl items-end justify-between gap-6 px-5 lg:px-8">
-          <div>
-            <p className="eyebrow">Vient de sortir de l'atelier</p>
-            <MaskLines
-              className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
-              lines={[<>Nouveautés</>]}
-            />
-          </div>
-          <div className="hidden gap-2.5 sm:flex">
-            <button
-              onClick={() => scrollRow(-1)}
-              aria-label="Faire défiler vers la gauche"
-              className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
-            >
-              <IconChevron size={18} className="rotate-90" />
-            </button>
-            <button
-              onClick={() => scrollRow(1)}
-              aria-label="Faire défiler vers la droite"
-              className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
-            >
-              <IconChevron size={18} className="-rotate-90" />
-            </button>
-          </div>
-        </div>
-        <div
-          ref={rowRef}
-          className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 lg:px-8"
-        >
-          {news.map((p, i) => (
-            <div key={p.id} className="w-[272px] shrink-0 snap-start sm:w-[300px]">
-              <ProductCard product={p} delay={i * 70} />
+      {news.length > 0 && (
+        <section className="pt-24 lg:pt-32">
+          <div className="mx-auto flex max-w-7xl items-end justify-between gap-6 px-5 lg:px-8">
+            <div>
+              <p className="eyebrow">Vient de sortir de l'atelier</p>
+              <MaskLines
+                className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
+                lines={[<>Nouveautés</>]}
+              />
             </div>
-          ))}
-          <div className="flex w-[240px] shrink-0 snap-start items-center justify-center">
-            <Link
-              to="/boutique"
-              className="group flex flex-col items-center gap-4 text-cocoa-700 transition-colors hover:text-cognac-600"
-            >
-              <span className="grid h-16 w-16 place-items-center rounded-full border border-cocoa-800/25 transition-all duration-300 group-hover:border-cognac-500 group-hover:bg-cognac-500 group-hover:text-sand-100">
-                <IconArrow size={22} />
-              </span>
-              <span className="text-[11px] tracking-[0.26em] uppercase">Tout voir</span>
-            </Link>
+            <div className="hidden gap-2.5 sm:flex">
+              <button
+                onClick={() => scrollRow(-1)}
+                aria-label="Faire défiler vers la gauche"
+                className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
+              >
+                <IconChevron size={18} className="rotate-90" />
+              </button>
+              <button
+                onClick={() => scrollRow(1)}
+                aria-label="Faire défiler vers la droite"
+                className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
+              >
+                <IconChevron size={18} className="-rotate-90" />
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+          <div
+            ref={rowRef}
+            className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 lg:px-8"
+          >
+            {news.map((p, i) => (
+              <div key={p.id} className="w-[272px] shrink-0 snap-start sm:w-[300px]">
+                <ProductCard product={p} delay={i * 70} />
+              </div>
+            ))}
+            <div className="flex w-[240px] shrink-0 snap-start items-center justify-center">
+              <Link
+                to="/boutique"
+                className="group flex flex-col items-center gap-4 text-cocoa-700 transition-colors hover:text-cognac-600"
+              >
+                <span className="grid h-16 w-16 place-items-center rounded-full border border-cocoa-800/25 transition-all duration-300 group-hover:border-cognac-500 group-hover:bg-cognac-500 group-hover:text-sand-100">
+                  <IconArrow size={22} />
+                </span>
+                <span className="text-[11px] tracking-[0.26em] uppercase">Tout voir</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ================= MEILLEURES VENTES ================= */}
-      <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-28">
-        <p className="eyebrow">Les pièces que l'on s'arrache</p>
-        <MaskLines
-          className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
-          lines={[
-            <>
-              Meilleures <em className="text-cognac-600">ventes</em>
-            </>,
-          ]}
-        />
-        <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-          {best.map((p, i) => (
-            <div key={p.id} className="relative">
-              <span
-                aria-hidden
-                className="font-display pointer-events-none absolute -top-12 -left-2 z-0 text-[110px] leading-none font-semibold text-sand-300/70 select-none"
-              >
-                {i + 1}
-              </span>
-              <div className="relative z-[1]">
-                <ProductCard product={p} delay={i * 90} />
+      {best.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-28">
+          <p className="eyebrow">Les pièces que l'on s'arrache</p>
+          <MaskLines
+            className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
+            lines={[
+              <>
+                Meilleures <em className="text-cognac-600">ventes</em>
+              </>,
+            ]}
+          />
+          <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+            {best.map((p, i) => (
+              <div key={p.id} className="relative">
+                <span
+                  aria-hidden
+                  className="font-display pointer-events-none absolute -top-12 -left-2 z-0 text-[110px] leading-none font-semibold text-sand-300/70 select-none"
+                >
+                  {i + 1}
+                </span>
+                <div className="relative z-[1]">
+                  <ProductCard product={p} delay={i * 90} />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ================= SUR MESURE ================= */}
       <section className="relative mt-24 overflow-hidden bg-cocoa-900 text-sand-100 lg:mt-32">
@@ -454,46 +486,50 @@ export default function Home() {
       </section>
 
       {/* ================= GALERIE TEASER ================= */}
-      <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-32">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <p className="eyebrow">Galerie de réalisations</p>
-            <MaskLines
-              className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
-              lines={[<>Sorties de l'atelier</>]}
-            />
+      {teaser.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-32">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="eyebrow">Galerie de réalisations</p>
+              <MaskLines
+                className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
+                lines={[<>Sorties de l'atelier</>]}
+              />
+            </div>
+            <p className="max-w-xs text-sm leading-relaxed text-cocoa-500">
+              Chaque semaine, de nouvelles créations rejoignent la galerie — portées par nos
+              clientes et clients, avec leur accord.
+            </p>
           </div>
-          <p className="max-w-xs text-sm leading-relaxed text-cocoa-500">
-            Chaque semaine, de nouvelles créations rejoignent la galerie — portées par nos
-            clientes et clients, avec leur accord.
-          </p>
-        </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {[GALLERY[1], GALLERY[3], GALLERY[8]].map((g, i) => (
-            <Reveal key={g.title} delay={i * 130} className={i === 1 ? "sm:translate-y-10" : ""}>
-              <Link to="/galerie" className="group relative block overflow-hidden rounded-[8px]">
-                <img
-                  src={g.src}
-                  alt={g.title}
-                  className={`w-full object-cover transition-transform duration-[1.3s] ease-out group-hover:scale-[1.06] ${
-                    i === 1 ? "h-[340px]" : "h-[400px]"
-                  }`}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-cocoa-950/80 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                <p className="font-display absolute bottom-5 left-5 translate-y-3 text-xl text-sand-100 italic opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                  {g.title}
-                </p>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-16 text-center sm:mt-20">
-          <Link to="/galerie" className="btn-ghost">
-            Explorer les 12 réalisations <IconArrow size={15} />
-          </Link>
-        </div>
-      </section>
+          <div className="mt-12 grid gap-6 sm:grid-cols-3">
+            {teaser.map((g, i) => (
+              <Reveal key={g.id} delay={i * 130} className={i === 1 ? "sm:translate-y-10" : ""}>
+                <Link to="/galerie" className="group relative block overflow-hidden rounded-[8px]">
+                  <img
+                    src={g.image_url}
+                    alt={g.title || "Réalisation HANI'S"}
+                    className={`w-full object-cover transition-transform duration-[1.3s] ease-out group-hover:scale-[1.06] ${
+                      i === 1 ? "h-[340px]" : "h-[400px]"
+                    }`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-cocoa-950/80 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  {g.title && (
+                    <p className="font-display absolute bottom-5 left-5 translate-y-3 text-xl text-sand-100 italic opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                      {g.title}
+                    </p>
+                  )}
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-16 text-center sm:mt-20">
+            <Link to="/galerie" className="btn-ghost">
+              Explorer la galerie <IconArrow size={15} />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ================= TÉMOIGNAGES ================= */}
       <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-32">

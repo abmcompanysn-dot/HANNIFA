@@ -1,11 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  FEMME_SUBS,
-  HOMME_SUBS,
-  PRODUCTS,
-  fmtPrice,
-} from "../data/catalog";
+import { fmtPrice } from "../data/catalog";
+import type { Product as UiProduct } from "../data/catalog";
+import { listProducts, ABMCYApiError } from "../services/abmcy";
+import { mapProducts } from "../lib/mapProduct";
 import ProductCard from "../components/ProductCard";
 import { MaskLines, Reveal } from "../components/Reveal";
 import { IconArrow, IconNeedle } from "../components/Icons";
@@ -18,16 +16,42 @@ export default function Boutique() {
   const [sub, setSub] = useState("Toutes");
   const [sort, setSort] = useState("featured");
 
+  const [products, setProducts] = useState<UiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    listProducts()
+      .then((list) => {
+        if (cancelled) return;
+        setProducts(mapProducts(list));
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e instanceof ABMCYApiError ? e.message : "Impossible de charger la boutique pour le moment.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const base = useMemo(
-    () => PRODUCTS.filter((p) => gender === "all" || p.gender === gender),
-    [gender]
+    () => products.filter((p) => gender === "all" || p.gender === gender),
+    [products, gender]
   );
 
   const subs = useMemo(() => {
-    if (gender === "femme") return [...FEMME_SUBS];
-    if (gender === "homme") return [...HOMME_SUBS];
-    return [];
-  }, [gender]);
+    const relevant = gender === "all" ? products : products.filter((p) => p.gender === gender);
+    const distinct = Array.from(new Set(relevant.map((p) => p.sub))).filter(Boolean);
+    distinct.sort((a, b) => a.localeCompare(b, "fr"));
+    return distinct;
+  }, [products, gender]);
 
   const list = useMemo(() => {
     let l = sub === "Toutes" ? base : base.filter((p) => p.sub === sub);
@@ -108,20 +132,37 @@ export default function Boutique() {
         </div>
       </div>
 
-      {/* grille produits */}
-      {list.length > 0 ? (
-        <div className="grid grid-cols-1 gap-x-6 gap-y-12 pt-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {list.map((p, i) => (
-            <ProductCard key={p.id} product={p} delay={(i % 4) * 90} />
-          ))}
-        </div>
-      ) : (
+      {/* état de chargement / erreur */}
+      {loading && (
         <div className="py-24 text-center">
-          <p className="font-display text-3xl text-cocoa-800 italic">Aucun modèle dans cette sélection</p>
-          <button onClick={() => setSub("Toutes")} className="btn-ghost mt-6">
-            Voir toute la collection
-          </button>
+          <span className="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-sand-300 border-t-cognac-600" />
+          <p className="mt-4 text-sm text-cocoa-500">Chargement de la boutique…</p>
         </div>
+      )}
+
+      {!loading && error && (
+        <div className="py-24 text-center">
+          <p className="font-display text-2xl text-cocoa-800 italic">Impossible de charger la boutique</p>
+          <p className="mt-3 text-sm text-cognac-700">{error}</p>
+        </div>
+      )}
+
+      {/* grille produits */}
+      {!loading && !error && (
+        list.length > 0 ? (
+          <div className="grid grid-cols-1 gap-x-6 gap-y-12 pt-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {list.map((p, i) => (
+              <ProductCard key={p.id} product={p} delay={(i % 4) * 90} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-24 text-center">
+            <p className="font-display text-3xl text-cocoa-800 italic">Aucun modèle dans cette sélection</p>
+            <button onClick={() => setSub("Toutes")} className="btn-ghost mt-6">
+              Voir toute la collection
+            </button>
+          </div>
+        )
       )}
 
       {/* bandeau sur mesure */}

@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { PRODUCTS, fmtPrice } from "../data/catalog";
+import { fmtPrice } from "../data/catalog";
+import type { Product as UiProduct } from "../data/catalog";
+import { listProducts, ABMCYApiError } from "../services/abmcy";
+import { mapProducts } from "../lib/mapProduct";
 import { useStore } from "../context/StoreContext";
 import ProductCard from "../components/ProductCard";
 import { Reveal } from "../components/Reveal";
@@ -41,8 +44,34 @@ const ACCORDIONS = [
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const product = useMemo(() => PRODUCTS.find((p) => p.id === id), [id]);
   const { addToCart } = useStore();
+
+  const [products, setProducts] = useState<UiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    listProducts()
+      .then((list) => {
+        if (cancelled) return;
+        setProducts(mapProducts(list));
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e instanceof ABMCYApiError ? e.message : "Impossible de charger ce modèle pour le moment.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const product = useMemo(() => products.find((p) => p.id === id), [products, id]);
 
   const [ci, setCi] = useState(0);
   const [size, setSize] = useState<string | null>(null);
@@ -50,6 +79,28 @@ export default function ProductDetail() {
   const [crop, setCrop] = useState(0);
   const [open, setOpen] = useState(0);
   const [sizeHint, setSizeHint] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl px-5 py-32 text-center">
+        <span className="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-sand-300 border-t-cognac-600" />
+        <p className="mt-4 text-sm text-cocoa-500">Chargement du modèle…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-3xl px-5 py-32 text-center">
+        <p className="eyebrow">Erreur</p>
+        <p className="font-display mt-4 text-3xl text-cocoa-900 italic">Impossible de charger ce modèle</p>
+        <p className="mt-3 text-sm text-cognac-700">{error}</p>
+        <Link to="/boutique" className="btn-primary mt-8">
+          Retour à la boutique
+        </Link>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -87,7 +138,7 @@ export default function ProductDetail() {
     );
   };
 
-  const similar = PRODUCTS.filter((p) => p.gender === product.gender && p.id !== product.id).slice(0, 4);
+  const similar = products.filter((p) => p.gender === product.gender && p.id !== product.id).slice(0, 4);
 
   return (
     <div className="mx-auto max-w-7xl px-5 pt-10 lg:px-8">
