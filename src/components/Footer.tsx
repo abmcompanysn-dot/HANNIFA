@@ -38,15 +38,14 @@ export default function Footer() {
 
   return (
     <footer className="relative mt-28 overflow-hidden bg-cocoa-900 text-sand-200">
-      {/* photo de fond — léger voile pour garder le texte lisible sans trop assombrir la photo */}
+      {/* photo de fond, sans voile — affichée telle quelle */}
       <div
-        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-55"
+        className="pointer-events-none absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
             "url(https://abmcy.mahu.cards/c5a72dc0-54c9-4f3a-aa76-67a013e265f9/7d31843f-e081-4cae-92e3-d693f70443ac-ab14ef86-71bc-4267-ba9a-0c97638f5af6.jpg)",
         }}
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-cocoa-900/80 via-cocoa-900/70 to-cocoa-900/85" />
 
       {/* liseré décoratif */}
       <div className="relative flex items-center gap-4 overflow-hidden px-8 pt-10">
