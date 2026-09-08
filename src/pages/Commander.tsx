@@ -133,6 +133,7 @@ export default function Commander() {
           shipping_address,
           total_amount: cartTotal,
           measurements,
+          fabric_id: c.fabricId,
           fabric_source: fabricSourceMap[c.fabricSource],
           notes,
         });

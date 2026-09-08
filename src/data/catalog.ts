@@ -17,22 +17,12 @@ export type Product = {
 };
 
 /**
- * Anciennes listes statiques FEMME_SUBS / HOMME_SUBS / PRODUCTS supprimées —
- * remplacées par un vrai appel API (GET /products). Les sous-catégories sont
- * désormais dérivées dynamiquement des produits chargés (voir Boutique.tsx),
- * puisque attributes.sub vient maintenant de l'API pour chaque produit.
+ * Anciennes listes statiques FEMME_SUBS / HOMME_SUBS / PRODUCTS / FABRICS
+ * supprimées — remplacées par de vrais appels API (GET /products,
+ * GET /fabrics). Les sous-catégories sont dérivées dynamiquement des
+ * produits chargés (voir Boutique.tsx), et les 8 tissus "maison" existent
+ * maintenant comme de vrais tissus ABMCY avec photo (voir SurMesure.tsx).
  */
-
-export const FABRICS = [
-  { id: "crepe-ivoire", name: "Crêpe satin", tone: "Ivoire", extra: 0, swatch: "linear-gradient(135deg,#efe6d2 0%,#e3d5b8 45%,#f4ecd9 100%)", desc: "Fluide et infroissable, le choix de la maison." },
-  { id: "soie-bronze", name: "Soie sauvage", tone: "Bronze", extra: 6000, swatch: "linear-gradient(135deg,#a87437 0%,#8f5f28 40%,#c08a45 75%,#a87437 100%)", desc: "Reflets profonds, main légèrement texturée." },
-  { id: "lin-sable", name: "Lin lavé", tone: "Sable", extra: 3500, swatch: "repeating-linear-gradient(90deg,#d8c4a0 0 3px,#cfba94 3px 6px)", desc: "Respirant, tombé souple, parfait au quotidien." },
-  { id: "brocart-or", name: "Brocart royal", tone: "Or", extra: 9000, swatch: "radial-gradient(circle at 30% 30%,#e4c57e,transparent 45%),linear-gradient(135deg,#c2a05a,#a5824a 60%,#c2a05a)", desc: "Tissé de motifs floraux, pour les cérémonies." },
-  { id: "medine-ebene", name: "Crêpe de Médine", tone: "Ébène", extra: 2500, swatch: "linear-gradient(135deg,#3a2d22 0%,#241a12 55%,#3a2d22 100%)", desc: "Opaque et mat, idéal pour la prière." },
-  { id: "bazin-nuit", name: "Bazin riche", tone: "Bleu nuit", extra: 8000, swatch: "linear-gradient(135deg,#31405c 0%,#232f46 50%,#3d4d6d 100%)", desc: "Le bazin Getzner authentique, éclat glacé." },
-  { id: "wax-terre", name: "Wax premium", tone: "Terre", extra: 4500, swatch: "radial-gradient(circle at 25% 35%,#e9dfc8 0 6%,transparent 7%),radial-gradient(circle at 70% 70%,#e9dfc8 0 5%,transparent 6%),linear-gradient(135deg,#9c5a3c,#7d452c)", desc: "Imprimés exclusifs dessinés pour HANI'S." },
-  { id: "mousseline-brume", name: "Mousseline", tone: "Brume", extra: 2000, swatch: "linear-gradient(135deg,#cbb9a2 0%,#baa68c 50%,#d6c6b0 100%)", desc: "Légère et vaporeuse, double épaisseur." },
-];
 
 /**
  * Anciennes listes statiques GALLERY / GALLERY_CATS supprimées — remplacées

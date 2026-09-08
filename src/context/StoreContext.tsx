@@ -21,6 +21,7 @@ export type CustomDetails = {
   };
   measurements: Record<string, string>;
   fabricSource: "maison" | "envoi" | "conseil";
+  fabricId?: string;
   fabricName?: string;
   fabricFileName?: string;
   comment?: string;

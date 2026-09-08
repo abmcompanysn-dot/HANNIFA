@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  FABRICS,
   MEASURES_FEMME,
   MEASURES_HOMME,
   fmtPrice,
 } from "../data/catalog";
 import type { Product as UiProduct } from "../data/catalog";
 import { useStore } from "../context/StoreContext";
-import { listProducts, uploadFabricPhoto, ABMCYApiError } from "../services/abmcy";
+import {
+  listProducts,
+  listFabrics,
+  uploadFabricPhoto,
+  ABMCYApiError,
+  type Fabric,
+} from "../services/abmcy";
 import { mapProducts } from "../lib/mapProduct";
 import { MaskLines, Reveal } from "../components/Reveal";
 import {
@@ -68,6 +73,28 @@ export default function SurMesure() {
     };
   }, []);
 
+  const [fabricsList, setFabricsList] = useState<Fabric[]>([]);
+  const [fabricsError, setFabricsError] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    listFabrics()
+      .then((list) => {
+        if (!cancelled) setFabricsList(list);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setFabricsList([]);
+        setFabricsError(
+          e instanceof ABMCYApiError
+            ? e.message
+            : "Impossible de charger la galerie de tissus pour le moment."
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const forModel = useMemo(
     () => products.find((p) => p.id === params.get("modele")) ?? null,
     [products, params]
@@ -99,9 +126,9 @@ export default function SurMesure() {
   const [error, setError] = useState<string | null>(null);
 
   const fields = gender === "femme" ? MEASURES_FEMME : MEASURES_HOMME;
-  const fabric = FABRICS.find((f) => f.id === fabricId) ?? null;
+  const fabric = fabricsList.find((f) => f.id === fabricId) ?? null;
   const basePrice = forModel ? forModel.price : 40000;
-  const total = basePrice + (fabricSource === "maison" && fabric ? fabric.extra : 0);
+  const total = basePrice + (fabricSource === "maison" && fabric ? fabric.extra_price : 0);
   const filledMeasures = fields.filter((f) => (measurements[f.key] ?? "").trim() !== "");
 
   const onFile = (e: ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +193,7 @@ export default function SurMesure() {
       kind: "custom",
       productId: forModel?.id,
       name: forModel ? `Sur mesure — ${forModel.name}` : `Création sur mesure ${gender === "femme" ? "Femme" : "Homme"}`,
-      detail: `${fabricSource === "maison" ? `Tissu ${fabric?.name} ${fabric?.tone}` : fabricSource === "envoi" ? `Tissu client (${fileName})` : "Tissu conseillé par l'atelier"} · ${filledMeasures.length} mesures transmises`,
+      detail: `${fabricSource === "maison" ? `Tissu ${fabric?.name ?? ""}` : fabricSource === "envoi" ? `Tissu client (${fileName})` : "Tissu conseillé par l'atelier"} · ${filledMeasures.length} mesures transmises`,
       price: total,
       image: forModel?.image ?? "images/tissus.jpg",
       custom: {
@@ -175,7 +202,8 @@ export default function SurMesure() {
         contact,
         measurements,
         fabricSource,
-        fabricName: fabricSource === "maison" && fabric ? `${fabric.name} — ${fabric.tone}` : undefined,
+        fabricId: fabricSource === "maison" ? (fabricId ?? undefined) : undefined,
+        fabricName: fabricSource === "maison" && fabric ? fabric.name : undefined,
         fabricFileName: fabricSource === "envoi" ? fileName ?? undefined : undefined,
         comment: fullComment || undefined,
       },
@@ -568,8 +596,16 @@ export default function SurMesure() {
                 {fabricSource === "maison" && (
                   <div className="mt-9">
                     <p className="label">Galerie de tissus HANI&rsquo;S</p>
+                    {fabricsError && (
+                      <p className="mb-4 border-l-2 border-cognac-600 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
+                        {fabricsError}
+                      </p>
+                    )}
+                    {!fabricsError && fabricsList.length === 0 && (
+                      <p className="text-sm text-cocoa-500">Chargement de la galerie de tissus…</p>
+                    )}
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                      {FABRICS.map((f) => (
+                      {fabricsList.map((f) => (
                         <button
                           key={f.id}
                           onClick={() => setFabricId(f.id)}
@@ -579,22 +615,27 @@ export default function SurMesure() {
                               : "border-sand-300 bg-sand-50/60 hover:border-cocoa-800"
                           }`}
                         >
-                          <span
-                            className="block h-16 w-full border border-cocoa-900/10 transition-transform duration-300 group-hover:scale-[1.02]"
-                            style={{ background: f.swatch }}
-                          />
+                          {f.image_url ? (
+                            <img
+                              src={f.image_url}
+                              alt={f.name}
+                              className="block h-16 w-full border border-cocoa-900/10 object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                            />
+                          ) : (
+                            <span className="block h-16 w-full border border-cocoa-900/10 bg-sand-200" />
+                          )}
                           <span className="mt-2.5 block text-[13px] leading-tight font-semibold text-cocoa-900">
                             {f.name}
                           </span>
                           <span className="block text-[11px] text-cocoa-500">
-                            {f.tone} · {f.extra === 0 ? "inclus" : `+ ${fmtPrice(f.extra)}`}
+                            {f.extra_price === 0 ? "inclus" : `+ ${fmtPrice(f.extra_price)}`}
                           </span>
                         </button>
                       ))}
                     </div>
-                    {fabric && (
+                    {fabric?.description && (
                       <p className="mt-4 border-l-2 border-cognac-500 pl-4 text-sm text-cocoa-700 italic">
-                        {fabric.desc}
+                        {fabric.description}
                       </p>
                     )}
                   </div>
@@ -703,7 +744,7 @@ export default function SurMesure() {
                       s: 3,
                       v:
                         fabricSource === "maison" && fabric
-                          ? `${fabric.name} — ${fabric.tone} (${fabric.extra === 0 ? "inclus" : `+ ${fmtPrice(fabric.extra)}`})`
+                          ? `${fabric.name} (${fabric.extra_price === 0 ? "inclus" : `+ ${fmtPrice(fabric.extra_price)}`})`
                           : fabricSource === "envoi"
                             ? `Votre tissu (${fileName})`
                             : "Conseillé par l'atelier",
