@@ -91,32 +91,34 @@ export default function Boutique() {
 
       {/* filtres genre */}
       <div className="sticky top-[104px] z-30 -mx-5 border-b border-sand-300/70 bg-sand-100/95 px-5 py-4 backdrop-blur-md lg:-mx-8 lg:px-8">
-        <div className="flex flex-wrap items-center gap-2.5">
-          {(
-            [
-              { g: "all" as Gender, to: "/boutique", label: "Tout" },
-              { g: "femme" as Gender, to: "/boutique/femme", label: "Femme" },
-              { g: "homme" as Gender, to: "/boutique/homme", label: "Homme" },
-            ]
-          ).map((t) => (
-            <Link
-              key={t.g}
-              to={t.to}
-              className={`chip ${gender === t.g ? "chip-on" : ""}`}
-            >
-              {t.label}
-            </Link>
-          ))}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {(
+              [
+                { g: "all" as Gender, to: "/boutique", label: "Tout" },
+                { g: "femme" as Gender, to: "/boutique/femme", label: "Femme" },
+                { g: "homme" as Gender, to: "/boutique/homme", label: "Homme" },
+              ]
+            ).map((t) => (
+              <Link
+                key={t.g}
+                to={t.to}
+                className={`chip ${gender === t.g ? "chip-on" : ""}`}
+              >
+                {t.label}
+              </Link>
+            ))}
 
-          {subs.length > 0 && <span className="mx-2 hidden h-5 w-px bg-sand-300 sm:block" />}
+            {subs.length > 0 && <span className="mx-1 hidden h-5 w-px bg-sand-300 sm:block" />}
 
-          {subs.map((s) => (
-            <button key={s} onClick={() => setSub(sub === s ? "Toutes" : s)} className={`chip ${sub === s ? "chip-on" : ""}`}>
-              {s}
-            </button>
-          ))}
+            {subs.map((s) => (
+              <button key={s} onClick={() => setSub(sub === s ? "Toutes" : s)} className={`chip ${sub === s ? "chip-on" : ""}`}>
+                {s}
+              </button>
+            ))}
+          </div>
 
-          <label className="ml-auto flex items-center gap-3">
+          <label className="flex items-center gap-3 lg:shrink-0">
             <span className="text-[11px] uppercase tracking-[0.2em] text-cocoa-500">Trier</span>
             <select
               value={sort}
