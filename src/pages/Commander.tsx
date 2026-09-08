@@ -200,7 +200,7 @@ export default function Commander() {
                 </div>
                 <div>
                   <label className="label">Ville</label>
-                  <input className="field" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Dakar" />
+                  <input className="field" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Bobo-Dioulasso" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="label">Adresse de livraison *</label>

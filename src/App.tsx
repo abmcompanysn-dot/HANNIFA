@@ -40,7 +40,7 @@ function Toasts() {
 function WhatsAppFloat() {
   return (
     <a
-      href="https://wa.me/221778123456"
+      href="https://wa.me/22675544742"
       target="_blank"
       rel="noreferrer"
       aria-label="Discuter avec HANI'S sur WhatsApp Business"

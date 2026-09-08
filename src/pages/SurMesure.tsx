@@ -307,12 +307,12 @@ export default function SurMesure() {
                 L'atelier vous guide
               </p>
               <a
-                href="https://wa.me/221778123456"
+                href="https://wa.me/22675544742"
                 target="_blank"
                 rel="noreferrer"
                 className="mt-3 inline-flex items-center gap-2 text-sm text-cognac-600 transition-colors hover:text-cocoa-800"
               >
-                <IconPhone size={15} /> +221 77 812 34 56
+                <IconPhone size={15} /> +226 75 54 47 42
               </a>
             </div>
           </div>
@@ -379,7 +379,7 @@ export default function SurMesure() {
                     <label className="label">Ville</label>
                     <input
                       className="field"
-                      placeholder="Dakar, Thiès, Saint-Louis…"
+                      placeholder="Bobo-Dioulasso, Ouagadougou…"
                       value={contact.city}
                       onChange={(e) => setContact({ ...contact, city: e.target.value })}
                     />

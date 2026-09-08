@@ -4,11 +4,12 @@ import { Logo } from "./Header";
 import {
   IconArrow,
   IconCheck,
-  IconFacebook,
+  IconGlobe,
   IconInstagram,
   IconMail,
   IconPhone,
   IconPin,
+  IconSnapchat,
   IconTikTok,
   IconWhatsApp,
 } from "./Icons";
@@ -17,8 +18,10 @@ import { SOCIALS } from "../data/catalog";
 const SOCIAL_ICONS: Record<string, (p: { size?: number }) => ReactNode> = {
   instagram: (p) => <IconInstagram {...p} />,
   tiktok: (p) => <IconTikTok {...p} />,
-  facebook: (p) => <IconFacebook {...p} />,
+  snapchat: (p) => <IconSnapchat {...p} />,
+  website: (p) => <IconGlobe {...p} />,
   whatsapp: (p) => <IconWhatsApp {...p} />,
+  whatsapp2: (p) => <IconWhatsApp {...p} />,
 };
 
 export default function Footer() {
@@ -46,7 +49,7 @@ export default function Footer() {
         <div>
           <Logo light />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-sand-300">
-            Maison de couture fondée à Dakar. Pièces d'exception, confection sur mesure et
+            Maison de couture basée à Bobo-Dioulasso. Pièces d'exception, confection sur mesure et
             savoir-faire transmis de mère en fille.
           </p>
           <div className="mt-6 flex gap-3">
@@ -117,18 +120,18 @@ export default function Footer() {
           <ul className="space-y-3.5 text-sm text-sand-300">
             <li className="flex items-start gap-3">
               <IconPin size={17} className="mt-0.5 shrink-0 text-cognac-300" />
-              Villa 27, Sacré-Cœur III — Dakar, Sénégal
+              Bobo-Dioulasso, Burkina Faso
             </li>
             <li className="flex items-center gap-3">
               <IconPhone size={17} className="shrink-0 text-cognac-300" />
-              <a href="tel:+221778123456" className="transition-colors hover:text-cognac-300">
-                +221 77 812 34 56
+              <a href="tel:+22675544742" className="transition-colors hover:text-cognac-300">
+                +226 75 54 47 42
               </a>
             </li>
             <li className="flex items-center gap-3">
               <IconMail size={17} className="shrink-0 text-cognac-300" />
-              <a href="mailto:salam@hanis.sn" className="transition-colors hover:text-cognac-300">
-                salam@hanis.sn
+              <a href="mailto:hanifahkone9@gmail.com" className="transition-colors hover:text-cognac-300">
+                hanifahkone9@gmail.com
               </a>
             </li>
           </ul>
@@ -189,7 +192,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-sand-100/10 py-5 text-center text-[12px] tracking-wide text-sand-300/70">
-        © {new Date().getFullYear()} HANI&rsquo;S — Tous droits réservés · Cousu main à Dakar
+        © {new Date().getFullYear()} HANI&rsquo;S — Tous droits réservés · Cousu main à Bobo-Dioulasso
         <span className="mx-2 text-cognac-300">✦</span>
         Élégance, confiance, savoir-faire
       </div>

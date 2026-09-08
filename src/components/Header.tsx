@@ -210,12 +210,12 @@ export default function Header() {
               ))}
             </div>
             <a
-              href="https://wa.me/221778123456"
+              href="https://wa.me/22675544742"
               target="_blank"
               rel="noreferrer"
               className="mt-5 flex items-center gap-3 text-sm text-sand-200 transition-colors hover:text-cognac-300"
             >
-              <IconWhatsApp size={17} /> +221 77 812 34 56
+              <IconWhatsApp size={17} /> +226 75 54 47 42
             </a>
           </div>
         </div>

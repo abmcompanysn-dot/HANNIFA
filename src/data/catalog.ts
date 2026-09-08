@@ -87,8 +87,10 @@ export const ORDER_STAGES = [
 export const fmtPrice = (n: number) => `${n.toLocaleString("fr-FR")} F`;
 
 export const SOCIALS = [
-  { id: "instagram", label: "Instagram", href: "https://instagram.com/hanis.couture" },
-  { id: "tiktok", label: "TikTok", href: "https://tiktok.com/@hanis.couture" },
-  { id: "facebook", label: "Facebook", href: "https://facebook.com/hanis.couture" },
-  { id: "whatsapp", label: "WhatsApp Business", href: "https://wa.me/221778123456" },
+  { id: "instagram", label: "Instagram", href: "https://www.instagram.com/hanis_clg?igsi=NGN5NTNic3lzNG9p&utm_source=qr" },
+  { id: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@j.hanifah0?_r=1&_t=ZS-98zV3Sc35jG" },
+  { id: "snapchat", label: "Snapchat", href: "https://snapchat.com/t/bzQttOba" },
+  { id: "website", label: "Site marchand", href: "https://www.miadmarket.com/vendor/hanis" },
+  { id: "whatsapp", label: "WhatsApp — Bobo-Dioulasso", href: "https://wa.me/22675544742" },
+  { id: "whatsapp2", label: "WhatsApp — Dakar", href: "https://wa.me/221781382860" },
 ];

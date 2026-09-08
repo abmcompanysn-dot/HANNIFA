@@ -386,7 +386,7 @@ export default function EspaceClient() {
                               </p>
                             )}
                             <a
-                              href="https://wa.me/221778123456"
+                              href="https://wa.me/22675544742"
                               target="_blank"
                               rel="noreferrer"
                               className="flex items-center gap-3 border border-sand-300 px-4 py-3 text-sm text-cocoa-700 transition-colors hover:border-cognac-500 hover:text-cognac-600"
@@ -414,7 +414,7 @@ export default function EspaceClient() {
               Retouches incluses sous 15 jours après livraison.
             </p>
           </div>
-          <a href="https://wa.me/221778123456" target="_blank" rel="noreferrer" className="btn-light shrink-0">
+          <a href="https://wa.me/22675544742" target="_blank" rel="noreferrer" className="btn-light shrink-0">
             <IconWhatsApp size={16} /> Écrire à l'atelier
           </a>
         </div>

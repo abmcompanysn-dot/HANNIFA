@@ -65,7 +65,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pt-12 pb-20 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:pt-16">
           <div className="relative z-10 lg:col-span-5">
             <p className="eyebrow flex items-center gap-3">
-              <IconSparkle size={12} /> Maison de couture — Dakar · depuis 2016
+              <IconSparkle size={12} /> Maison de couture — Bobo-Dioulasso
             </p>
             <MaskLines
               className="font-display mt-6 text-[56px] leading-[0.92] font-semibold text-cocoa-900 sm:text-[76px] lg:text-[68px] xl:text-[80px]"
@@ -93,7 +93,7 @@ export default function Home() {
             </Reveal>
             <Reveal delay={600} className="mt-12 grid max-w-md grid-cols-3 gap-5 border-t border-sand-300/80 pt-6">
               {[
-                { icon: <IconTruck size={19} />, t: "Livraison 72 h", s: "Dakar & régions" },
+                { icon: <IconTruck size={19} />, t: "Livraison 72 h", s: "Bobo-Dioulasso & régions" },
                 { icon: <IconSwatch size={19} />, t: "Tissus au choix", s: "Gamme ou envoi" },
                 { icon: <IconCard size={19} />, t: "Paiement mobile", s: "Wave · OM · Free" },
               ].map((f) => (
@@ -135,7 +135,7 @@ export default function Home() {
                   <path id="hns-circ" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" />
                 </defs>
                 <text fontSize="8" letterSpacing="2.6" fill="currentColor" style={{ fontFamily: "Jost, sans-serif" }}>
-                  <textPath href="#hns-circ">SUR MESURE · COUTURE MAIN · HANI&rsquo;S · DAKAR ·</textPath>
+                  <textPath href="#hns-circ">SUR MESURE · COUTURE MAIN · HANI&rsquo;S · BOBO-DIOULASSO ·</textPath>
                 </text>
               </svg>
               <span className="absolute inset-0 grid place-items-center text-cognac-500">
@@ -144,7 +144,7 @@ export default function Home() {
             </div>
 
             <p className="absolute top-1/2 -right-4 hidden -translate-y-1/2 rotate-90 text-[10px] tracking-[0.5em] whitespace-nowrap text-cocoa-500 uppercase xl:block">
-              Dakar — Sacré-Cœur
+              Bobo-Dioulasso
             </p>
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function Home() {
               {[
                 { n: "1 200+", l: "créations livrées" },
                 { n: "15", l: "artisans à l'atelier" },
-                { n: "100 %", l: "cousu main à Dakar" },
+                { n: "100 %", l: "cousu main à Bobo-Dioulasso" },
               ].map((s, i) => (
                 <Reveal key={s.l} delay={i * 120} className={`py-6 ${i > 0 ? "pl-5" : ""}`}>
                   <p className="font-display text-4xl font-semibold text-cocoa-900">{s.n}</p>
@@ -429,7 +429,7 @@ export default function Home() {
                 Commencer ma commande <IconArrow size={15} />
               </Link>
               <a
-                href="https://wa.me/221778123456"
+                href="https://wa.me/22675544742"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-3 px-4 py-4 text-[12px] font-medium tracking-[0.22em] text-sand-200 uppercase transition-colors hover:text-cognac-300"
