@@ -111,8 +111,8 @@ export default function Home() {
               <div className="arch pointer-events-none absolute -inset-3 translate-x-4 translate-y-4 border border-cognac-500/40" />
               <div className="arch relative overflow-hidden border border-sand-300/80">
                 <img
-                  src="images/hero.jpg"
-                  alt="Collection HANI'S — silhouette couture"
+                  src="https://abmcy.mahu.cards/c5a72dc0-54c9-4f3a-aa76-67a013e265f9/a7f9ed55-df37-4ca1-b9af-df2e6f6a61d3-Gemini_Generated_Image_n4vhw6n4vhw6n4vh.jpg"
+                  alt="Collection Héritage HANI'S — mannequin de couturière et ruban à mesurer"
                   className="h-[440px] w-full animate-kenburns object-cover object-top sm:h-[560px] lg:h-[640px]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-cocoa-950/35 via-transparent to-transparent" />
