@@ -37,9 +37,19 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative mt-28 bg-cocoa-900 text-sand-200">
+    <footer className="relative mt-28 overflow-hidden bg-cocoa-900 text-sand-200">
+      {/* photo de fond — assombrie par un dégradé pour garder le texte lisible */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-25"
+        style={{
+          backgroundImage:
+            "url(https://abmcy.mahu.cards/c5a72dc0-54c9-4f3a-aa76-67a013e265f9/7d31843f-e081-4cae-92e3-d693f70443ac-ab14ef86-71bc-4267-ba9a-0c97638f5af6.jpg)",
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-cocoa-900/95 via-cocoa-900/90 to-cocoa-900" />
+
       {/* liseré décoratif */}
-      <div className="flex items-center gap-4 overflow-hidden px-8 pt-10">
+      <div className="relative flex items-center gap-4 overflow-hidden px-8 pt-10">
         <div className="h-px flex-1 bg-sand-100/15" />
         <span className="font-display text-lg tracking-[0.5em] text-cognac-300 italic">HANI&rsquo;S</span>
         <div className="h-px flex-1 bg-sand-100/15" />

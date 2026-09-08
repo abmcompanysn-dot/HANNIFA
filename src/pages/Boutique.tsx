@@ -90,7 +90,7 @@ export default function Boutique() {
       </div>
 
       {/* filtres genre */}
-      <div className="sticky top-[104px] z-30 -mx-5 border-b border-sand-300/70 bg-sand-100/95 px-5 py-4 backdrop-blur-md lg:-mx-8 lg:px-8">
+      <div className="-mx-5 border-b border-sand-300/70 bg-sand-100/95 px-5 py-4 backdrop-blur-md lg:-mx-8 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-2.5">
             {(
