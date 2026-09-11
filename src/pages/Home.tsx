@@ -22,7 +22,7 @@ const MARQUEE = [
   "Sur mesure",
   "Couture main",
   "Tissus premium",
-  "Livraison 72 h",
+  "Confection 5 jours",
   "Paiement Wave · OM · Free Money",
   "Retouches incluses",
 ];
@@ -65,7 +65,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pt-12 pb-20 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:pt-16">
           <div className="relative z-10 lg:col-span-5">
             <p className="eyebrow flex items-center gap-3">
-              <IconSparkle size={12} /> Maison de couture — Bobo-Dioulasso
+              <IconSparkle size={12} /> Maison de couture — Dakar
             </p>
             <MaskLines
               className="font-display mt-6 text-[56px] leading-[0.92] font-semibold text-cocoa-900 sm:text-[76px] lg:text-[68px] xl:text-[80px]"
@@ -93,7 +93,7 @@ export default function Home() {
             </Reveal>
             <Reveal delay={600} className="mt-12 grid max-w-md grid-cols-3 gap-5 border-t border-sand-300/80 pt-6">
               {[
-                { icon: <IconTruck size={19} />, t: "Livraison 72 h", s: "Bobo-Dioulasso & régions" },
+                { icon: <IconTruck size={19} />, t: "Confection 5 jours", s: "Dakar & partout au Sénégal" },
                 { icon: <IconSwatch size={19} />, t: "Tissus au choix", s: "Gamme ou envoi" },
                 { icon: <IconCard size={19} />, t: "Paiement mobile", s: "Wave · OM · Free" },
               ].map((f) => (
@@ -135,7 +135,7 @@ export default function Home() {
                   <path id="hns-circ" d="M50,50 m-36,0 a36,36 0 1,1 72,0 a36,36 0 1,1 -72,0" />
                 </defs>
                 <text fontSize="8" letterSpacing="2.6" fill="currentColor" style={{ fontFamily: "Jost, sans-serif" }}>
-                  <textPath href="#hns-circ">SUR MESURE · COUTURE MAIN · HANI&rsquo;S · BOBO-DIOULASSO ·</textPath>
+                  <textPath href="#hns-circ">SUR MESURE · COUTURE MAIN · HANI&rsquo;S · DAKAR ·</textPath>
                 </text>
               </svg>
               <span className="absolute inset-0 grid place-items-center text-cognac-500">
@@ -144,7 +144,7 @@ export default function Home() {
             </div>
 
             <p className="absolute top-1/2 -right-4 hidden -translate-y-1/2 rotate-90 text-[10px] tracking-[0.5em] whitespace-nowrap text-cocoa-500 uppercase xl:block">
-              Bobo-Dioulasso
+              Dakar
             </p>
           </div>
         </div>
@@ -199,9 +199,9 @@ export default function Home() {
             <Reveal delay={200}>
               <p className="mt-7 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
                 La maison HANI&rsquo;S marie les techniques de la haute couture aux tissus
-                d'exception — bazin riche, soie sauvage, crêpe de Médine. Émus et inspirés par
-                cet artisanat, nous mettons notre passion du bel habit et des accessoires au
-                service de votre style.
+                d'exception — jazz, lin, coton, soie, mousseline et motifs bogolan. Émus et
+                inspirés par cet artisanat, nous mettons notre passion du bel habit et des
+                accessoires au service de votre style, entre élégance, modestie et authenticité.
               </p>
               <p className="mt-4 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
                 Chaque commande naît d'une véritable écoute : vos mesures, votre tissu, vos
@@ -304,7 +304,7 @@ export default function Home() {
                   <p className="text-[11px] font-medium tracking-[0.32em] text-cognac-300 uppercase">Collection</p>
                   <p className="font-display mt-1 text-5xl font-semibold text-sand-100">Homme</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {["Ensembles", "Chemises", "Bazin riche"].map((c) => (
+                    {["Ensembles", "Chemises", "Grands boubous"].map((c) => (
                       <span key={c} className="border border-sand-100/30 px-3 py-1 text-[10.5px] tracking-[0.14em] text-sand-200 uppercase">
                         {c}
                       </span>
@@ -446,7 +446,7 @@ export default function Home() {
               <p className="mt-10 border-l-2 border-cognac-500 pl-5 text-sm leading-relaxed text-sand-300 italic">
                 « Je souhaite ce modèle avec ce tissu et des manches légèrement plus larges. »
                 <span className="mt-2 block text-[11px] tracking-[0.22em] text-cognac-300 uppercase not-italic">
-                  — exemple de demande client, réalisable en 72 h
+                  — exemple de demande client, réalisable en 5 jours
                 </span>
               </p>
             </Reveal>

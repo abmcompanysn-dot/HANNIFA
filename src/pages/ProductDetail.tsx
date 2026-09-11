@@ -33,7 +33,7 @@ const ACCORDIONS = [
   {
     title: "Livraison & retouches",
     body: () =>
-      "Confection et expédition sous 72 h depuis notre atelier de Bobo-Dioulasso. Livraison offerte à Bobo-Dioulasso, 48 h pour les régions. Retouches incluses sous 15 jours.",
+      "Confection en 5 jours depuis notre atelier de Dakar, expédition immédiate après. Livraison offerte à Dakar, partout ailleurs au Sénégal selon la zone. Retouches incluses sous 15 jours.",
   },
   {
     title: "Entretien",
@@ -216,7 +216,7 @@ export default function ProductDetail() {
           <div className="mt-5 flex flex-wrap items-baseline gap-x-5 gap-y-1">
             <p className="font-display text-4xl font-semibold text-cognac-600">{fmtPrice(product.price)}</p>
             <p className="text-[12px] uppercase tracking-[0.18em] text-cocoa-500">
-              Retouches incluses · Livraison 72 h
+              Retouches incluses · Confection 5 jours
             </p>
           </div>
 
@@ -344,8 +344,8 @@ export default function ProductDetail() {
           {/* garanties */}
           <div className="mt-8 grid grid-cols-3 gap-4 text-center">
             {[
-              { icon: <IconTruck size={20} />, t: "Livraison 72 h", s: "Bobo-Dioulasso & régions" },
-              { icon: <IconNeedle size={20} />, t: "Cousu main", s: "Atelier Bobo-Dioulasso" },
+              { icon: <IconTruck size={20} />, t: "Confection 5 jours", s: "Dakar & partout au Sénégal" },
+              { icon: <IconNeedle size={20} />, t: "Cousu main", s: "Atelier Dakar" },
               { icon: <IconPhone size={20} />, t: "Conseil WhatsApp", s: "7 j / 7" },
             ].map((g) => (
               <div key={g.t} className="border border-sand-300/70 bg-sand-50/50 px-3 py-4">

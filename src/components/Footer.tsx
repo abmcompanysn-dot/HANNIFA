@@ -50,8 +50,8 @@ export default function Footer() {
         <div>
           <Logo light />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-sand-300">
-            Maison de couture basée à Bobo-Dioulasso. Pièces d'exception, confection sur mesure et
-            savoir-faire transmis de mère en fille.
+            Maison de couture basée à Dakar, expédiée partout. Pièces d'exception, confection sur
+            mesure et savoir-faire transmis de mère en fille.
           </p>
           <div className="mt-6 flex gap-3">
             {SOCIALS.map((s) => (
@@ -121,12 +121,12 @@ export default function Footer() {
           <ul className="space-y-3.5 text-sm text-sand-300">
             <li className="flex items-start gap-3">
               <IconPin size={17} className="mt-0.5 shrink-0 text-cognac-300" />
-              Bobo-Dioulasso, Burkina Faso
+              Dakar, Sénégal — livraison partout
             </li>
             <li className="flex items-center gap-3">
               <IconPhone size={17} className="shrink-0 text-cognac-300" />
-              <a href="tel:+22675544742" className="transition-colors hover:text-cognac-300">
-                +226 75 54 47 42
+              <a href="tel:+221781382860" className="transition-colors hover:text-cognac-300">
+                +221 78 138 28 60
               </a>
             </li>
             <li className="flex items-center gap-3">
@@ -193,9 +193,9 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-sand-100/10 py-5 text-center text-[12px] tracking-wide text-sand-300/70">
-        © {new Date().getFullYear()} HANI&rsquo;S — Tous droits réservés · Cousu main à Bobo-Dioulasso
+        © {new Date().getFullYear()} HANI&rsquo;S — Tous droits réservés · Cousu main à Dakar
         <span className="mx-2 text-cognac-300">✦</span>
-        Élégance, confiance, savoir-faire
+        Élégance, modestie, authenticité
       </div>
     </footer>
   );

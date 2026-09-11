@@ -115,7 +115,7 @@ export default function CartDrawer() {
 
             <div className="border-t border-sand-300/70 bg-sand-100/60 px-6 py-5">
               <div className="mb-1 flex items-center justify-between text-sm text-cocoa-500">
-                <span>Livraison — Bobo-Dioulasso & régions</span>
+                <span>Livraison — Dakar & partout au Sénégal</span>
                 <span className="text-cognac-600">Offerte</span>
               </div>
               <div className="mb-5 flex items-baseline justify-between">

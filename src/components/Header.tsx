@@ -82,8 +82,8 @@ export default function Header() {
       {/* bandeau annonce */}
       <div className="relative z-[60] flex items-center justify-center gap-2 bg-cocoa-900 px-4 py-2 text-center text-[11px] uppercase tracking-[0.22em] text-sand-200">
         <IconSparkle size={11} className="shrink-0 text-cognac-300" />
-        <span className="hidden sm:inline">Confection sur mesure · Livraison 72 h partout au Sénégal</span>
-        <span className="sm:hidden">Sur mesure · Livraison 72 h</span>
+        <span className="hidden sm:inline">Confection sur mesure en 5 jours · Livraison partout au Sénégal</span>
+        <span className="sm:hidden">Sur mesure · Confection 5 jours</span>
         <IconSparkle size={11} className="shrink-0 text-cognac-300" />
       </div>
 

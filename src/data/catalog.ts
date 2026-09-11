@@ -38,13 +38,13 @@ export const TESTIMONIALS = [
   },
   {
     quote:
-      "J'ai envoyé une photo de mon bazin, trois jours plus tard l'ensemble était en confection. Le suivi de commande est très clair.",
+      "J'ai envoyé une photo de mon tissu en mousseline, cinq jours plus tard l'ensemble était prêt et livré. Le suivi de commande est très clair.",
     name: "Moussa S.",
     city: "Saint-Louis",
   },
   {
     quote:
-      "Le khimar Nour est d'une douceur incroyable. Paiement Wave en deux minutes, livraison à Thiès en 48 h. Je recommande les yeux fermés.",
+      "Le khimar Nour est d'une douceur incroyable. Paiement Wave en deux minutes, livraison rapide jusqu'à Thiès. Je recommande les yeux fermés.",
     name: "Fatou N.",
     city: "Thiès",
   },

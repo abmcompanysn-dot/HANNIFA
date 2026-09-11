@@ -236,7 +236,8 @@ export default function SurMesure() {
             ) : (
               <>
                 Coordonnées, mesures, tissu : décrivez la tenue de vos rêves, l'atelier
-                HANI&rsquo;S la coud pour vous. Comptez 72 h de confection.
+                HANI&rsquo;S la coud pour vous. Comptez 5 jours de confection, livraison
+                immédiatement après.
               </>
             )}
           </p>
@@ -379,7 +380,7 @@ export default function SurMesure() {
                     <label className="label">Ville</label>
                     <input
                       className="field"
-                      placeholder="Bobo-Dioulasso, Ouagadougou…"
+                      placeholder="Dakar, Thiès, Saint-Louis…"
                       value={contact.city}
                       onChange={(e) => setContact({ ...contact, city: e.target.value })}
                     />
