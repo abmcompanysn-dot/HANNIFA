@@ -17,12 +17,28 @@ export type Product = {
 };
 
 /**
- * Anciennes listes statiques FEMME_SUBS / HOMME_SUBS / PRODUCTS / FABRICS
- * supprimées — remplacées par de vrais appels API (GET /products,
- * GET /fabrics). Les sous-catégories sont dérivées dynamiquement des
- * produits chargés (voir Boutique.tsx), et les 8 tissus "maison" existent
- * maintenant comme de vrais tissus ABMCY avec photo (voir SurMesure.tsx).
+ * Anciennes listes statiques FEMME_SUBS / HOMME_SUBS / PRODUCTS
+ * supprimées — remplacées par de vrais appels API (GET /products).
+ * Les sous-catégories sont dérivées dynamiquement des produits chargés
+ * (voir Boutique.tsx).
  */
+
+export type FabricOption = {
+  id: string;
+  name: string;
+  extra_price: number;
+  image_url?: string;
+  description?: string;
+};
+
+export const FABRICS: FabricOption[] = [
+  { id: "jazz", name: "Jazz", extra_price: 0, description: "Tissu léger et fluide, idéal pour les tenues de tous les jours." },
+  { id: "lin", name: "Lin", extra_price: 3000, description: "Naturel et respirant, pour un confort optimal sous le soleil." },
+  { id: "coton", name: "Coton", extra_price: 0, description: "Doux et résistant, la base intemporelle de nos créations." },
+  { id: "soie", name: "Soie", extra_price: 8000, description: "Éclat et tombé raffinés pour les grandes occasions." },
+  { id: "mousseline", name: "Mousseline", extra_price: 4000, description: "Légèreté aérienne, parfaite pour les robes et khimars." },
+  { id: "bogolan", name: "Bogolan", extra_price: 5000, description: "Motifs traditionnels authentiques, tissé et teint à la main." },
+];
 
 /**
  * Anciennes listes statiques GALLERY / GALLERY_CATS supprimées — remplacées

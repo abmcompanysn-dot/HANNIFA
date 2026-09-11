@@ -8,23 +8,11 @@ export function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="group inline-flex items-center gap-3" aria-label="HANI'S — accueil">
       <span
-        className={`grid h-11 w-11 place-items-center transition-colors duration-300 ${
-          light ? "text-sand-100" : "text-cocoa-800"
-        } group-hover:text-cognac-500`}
+        className={`grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full ring-1 transition-colors duration-300 ${
+          light ? "ring-sand-100/30" : "ring-cocoa-800/15"
+        }`}
       >
-        <svg viewBox="0 0 48 48" className="h-11 w-11">
-          <path d="M24 2.5 45.5 24 24 45.5 2.5 24Z" fill="none" stroke="currentColor" strokeWidth="1.4" />
-          <path d="M24 8.5 39.5 24 24 39.5 8.5 24Z" fill="none" stroke="currentColor" strokeWidth="0.7" opacity="0.5" />
-          <text
-            x="24"
-            y="31.5"
-            textAnchor="middle"
-            fill="currentColor"
-            style={{ font: "600 21px 'Cormorant Garamond', Georgia, serif" }}
-          >
-            H
-          </text>
-        </svg>
+        <img src="/logo-hanis.jpg" alt="" className="h-full w-full object-cover" />
       </span>
       <span className="leading-none">
         <span

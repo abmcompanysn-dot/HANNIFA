@@ -3,16 +3,15 @@ import { useSearchParams } from "react-router-dom";
 import {
   MEASURES_FEMME,
   MEASURES_HOMME,
+  FABRICS,
   fmtPrice,
 } from "../data/catalog";
-import type { Product as UiProduct } from "../data/catalog";
+import type { Product as UiProduct, FabricOption } from "../data/catalog";
 import { useStore } from "../context/StoreContext";
 import {
   listProducts,
-  listFabrics,
   uploadFabricPhoto,
   ABMCYApiError,
-  type Fabric,
 } from "../services/abmcy";
 import { mapProducts } from "../lib/mapProduct";
 import { MaskLines, Reveal } from "../components/Reveal";
@@ -73,27 +72,8 @@ export default function SurMesure() {
     };
   }, []);
 
-  const [fabricsList, setFabricsList] = useState<Fabric[]>([]);
-  const [fabricsError, setFabricsError] = useState<string | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    listFabrics()
-      .then((list) => {
-        if (!cancelled) setFabricsList(list);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setFabricsList([]);
-        setFabricsError(
-          e instanceof ABMCYApiError
-            ? e.message
-            : "Impossible de charger la galerie de tissus pour le moment."
-        );
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const fabricsList: FabricOption[] = FABRICS;
+  const fabricsError: string | null = null;
 
   const forModel = useMemo(
     () => products.find((p) => p.id === params.get("modele")) ?? null,
