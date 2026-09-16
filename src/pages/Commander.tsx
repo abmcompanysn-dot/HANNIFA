@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PAYMENTS, fmtPrice } from "../data/catalog";
+import { fmtPrice } from "../data/catalog";
 import { useStore, type Customer } from "../context/StoreContext";
 import {
   createOrder,
@@ -9,7 +9,7 @@ import {
   type Order as ApiOrder,
 } from "../services/abmcy";
 import { Reveal } from "../components/Reveal";
-import { IconArrow, IconBag, IconCheck } from "../components/Icons";
+import { IconArrow, IconBag } from "../components/Icons";
 
 export default function Commander() {
   const { cart, cartTotal, customer, clearCart, toast } = useStore();
@@ -17,7 +17,6 @@ export default function Commander() {
   const [form, setForm] = useState<Customer>(
     customer ?? { name: "", phone: "", email: "", address: "", city: "", note: "" }
   );
-  const [payment, setPayment] = useState("wave");
   const [processing, setProcessing] = useState(false);
   const [placed, setPlaced] = useState<ApiOrder | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +91,6 @@ export default function Commander() {
     );
   }
 
-  const pay = PAYMENTS.find((p) => p.id === payment)!;
-
   const submit = async () => {
     setError(null);
     if (!form.name.trim() || !form.phone.trim() || !form.address.trim()) {
@@ -107,7 +104,7 @@ export default function Commander() {
       const shipping_address = form.city.trim()
         ? `${form.address.trim()}, ${form.city.trim()}`
         : form.address.trim();
-      const notePrefix = `Paiement à la livraison — ${pay.name}.`;
+      const notePrefix = `Paiement à la livraison.`;
       const notes = form.note?.trim() ? `${notePrefix} ${form.note.trim()}` : notePrefix;
 
       const customItem = cart.find((i) => i.kind === "custom" && i.custom);
@@ -220,44 +217,9 @@ export default function Commander() {
               <h2 className="font-display flex items-baseline gap-4 text-3xl font-semibold text-cocoa-900">
                 <span className="font-display text-lg text-cognac-600 italic">02</span> Paiement
               </h2>
-              <p className="mt-3 text-sm text-cocoa-600">
-                Paiement à la livraison — indiquez votre moyen préféré, le livreur s'en occupera.
-              </p>
-              <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                {PAYMENTS.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setPayment(p.id)}
-                    className={`flex cursor-pointer items-center gap-4 border p-4 text-left transition-all duration-300 ${
-                      payment === p.id
-                        ? "border-cocoa-800 bg-cocoa-800 text-sand-100 shadow-[0_16px_36px_-16px_rgba(46,31,19,0.55)]"
-                        : "border-sand-300 bg-sand-50 hover:border-cocoa-800"
-                    }`}
-                  >
-                    <span
-                      className={`grid h-11 w-14 shrink-0 place-items-center rounded-[5px] text-[10px] font-bold tracking-wide ${
-                        payment === p.id ? "bg-sand-100" : "text-sand-50"
-                      }`}
-                      style={{ background: payment === p.id ? undefined : p.color, color: payment === p.id ? p.color : undefined }}
-                    >
-                      {p.id === "card" ? "CB" : p.id === "om" ? "OM" : p.id === "free" ? "FREE" : p.name.slice(0, 4).toUpperCase()}
-                    </span>
-                    <span>
-                      <span className="block text-[15px] font-semibold">{p.name}</span>
-                      <span className={`block text-[11.5px] ${payment === p.id ? "text-sand-300" : "text-cocoa-500"}`}>
-                        {p.tag}
-                      </span>
-                    </span>
-                    {payment === p.id && (
-                      <span className="ml-auto text-cognac-300"><IconCheck size={18} /></span>
-                    )}
-                  </button>
-                ))}
-              </div>
-
               <div className="mt-6 border border-sand-300/80 bg-sand-100/70 p-5">
                 <p className="text-sm text-cocoa-700">
-                  Vous réglerez <strong>{fmtPrice(cartTotal)}</strong> directement au livreur, en {pay.name.toLowerCase()}, à la réception de votre commande.
+                  Paiement à la livraison. Vous réglerez <strong>{fmtPrice(cartTotal)}</strong> directement au livreur, à la réception de votre commande.
                 </p>
               </div>
             </section>
