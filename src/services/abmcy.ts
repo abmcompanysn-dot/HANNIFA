@@ -15,9 +15,9 @@
  * - Gestion d'équipe
  */
 
-const API_BASE_URL = (import.meta as any).env?.VITE_ABMCY_API_URL || 'https://api.abmcy.com';
+export const API_BASE_URL = (import.meta as any).env?.VITE_ABMCY_API_URL || 'https://api.abmcy.com';
 const TENANT_API_KEY = (import.meta as any).env?.VITE_ABMCY_API_KEY || '';
-const TENANT_SLUG = (import.meta as any).env?.VITE_ABMCY_TENANT_SLUG || 'hanis';
+export const TENANT_SLUG = (import.meta as any).env?.VITE_ABMCY_TENANT_SLUG || 'hanis';
 
 // ============================================
 // TYPES

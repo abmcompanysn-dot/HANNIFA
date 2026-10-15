@@ -12,6 +12,7 @@ import SurMesure from "./pages/SurMesure";
 import Commander from "./pages/Commander";
 import EspaceClient from "./pages/EspaceClient";
 import Galerie from "./pages/Galerie";
+import SuspendedGate from "./components/SuspendedGate";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -65,6 +66,7 @@ function NotFound() {
 
 export default function App() {
   return (
+    <SuspendedGate>
     <StoreProvider>
       <HashRouter>
         <ScrollToTop />
@@ -91,5 +93,6 @@ export default function App() {
         <div className="noise-layer" aria-hidden />
       </HashRouter>
     </StoreProvider>
+    </SuspendedGate>
   );
 }
