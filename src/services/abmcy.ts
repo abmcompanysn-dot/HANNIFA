@@ -336,6 +336,23 @@ export async function createOrder(data: {
 }
 
 /**
+ * Paiement en ligne d'une commande via ABMCY Core Payment (Wave, Orange
+ * Money, Free Money, carte). part = "deposit" (acompte de 50 %, le reste à
+ * la livraison) ou "full" (totalité). Renvoie le lien de la page de
+ * paiement sécurisée vers laquelle rediriger le client.
+ */
+export async function payOrder(
+  orderId: string,
+  part: 'deposit' | 'full',
+  returnUrl: string
+): Promise<{ payment: { payment_url?: string; amount_fcfa: number } }> {
+  return apiRequest(`/orders/${orderId}/pay`, {
+    method: 'POST',
+    body: JSON.stringify({ part, return_url: returnUrl }),
+  });
+}
+
+/**
  * Créer une commande sur-mesure
  */
 export async function createCustomOrder(data: {

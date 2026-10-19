@@ -5,6 +5,7 @@ import { useStore, type Customer } from "../context/StoreContext";
 import {
   createOrder,
   createCustomOrder,
+  payOrder,
   ABMCYApiError,
   type Order as ApiOrder,
 } from "../services/abmcy";
@@ -20,6 +21,11 @@ export default function Commander() {
   const [processing, setProcessing] = useState(false);
   const [placed, setPlaced] = useState<ApiOrder | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Mode de paiement : acompte de 50 % en ligne (le reste à la livraison,
+  // par lien ou en espèces) ou totalité en ligne.
+  const [plan, setPlan] = useState<"deposit" | "full">("deposit");
+  const [paymentDown, setPaymentDown] = useState(false);
+  const deposit = Math.ceil(cartTotal / 2);
 
   /* ------- écran de confirmation ------- */
   if (placed) {
@@ -39,8 +45,8 @@ export default function Commander() {
             Votre commande <strong className="font-semibold text-cocoa-900">{placed.order_number}</strong> d'un
             montant de <strong className="font-semibold text-cocoa-900">{fmtPrice(placed.total_amount)}</strong>{" "}
             est enregistrée. Une confirmation vient d'être envoyée par e-mail —
-            l'atelier vous contacte sous 2 h pour valider les détails. Vous réglerez à la
-            livraison.
+            l'atelier vous contacte sous 2 h pour valider les détails
+            {paymentDown ? " et vous envoyer le lien de paiement de l'acompte." : "."}
           </p>
           <div className="mx-auto mt-9 max-w-sm border border-sand-300/80 bg-sand-50/70 p-6 text-left">
             <p className="text-[11px] tracking-[0.24em] text-cocoa-500 uppercase">Prochaines étapes</p>
@@ -48,7 +54,7 @@ export default function Commander() {
               {[
                 "Validation de la commande par l'atelier",
                 "Confection et couture à la main",
-                "Expédition avec suivi jusqu'à votre porte — paiement à la livraison",
+                "Livraison — le reste à régler par lien ou en espèces",
               ].map((s, i) => (
                 <li key={s} className="flex items-center gap-3">
                   <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-cocoa-800 text-[11px] font-semibold text-sand-100">
@@ -104,7 +110,10 @@ export default function Commander() {
       const shipping_address = form.city.trim()
         ? `${form.address.trim()}, ${form.city.trim()}`
         : form.address.trim();
-      const notePrefix = `Paiement à la livraison.`;
+      const notePrefix =
+        plan === "deposit"
+          ? `Paiement : acompte 50 % en ligne (${deposit} FCFA), solde à la livraison.`
+          : `Paiement : totalité en ligne.`;
       const notes = form.note?.trim() ? `${notePrefix} ${form.note.trim()}` : notePrefix;
 
       const customItem = cart.find((i) => i.kind === "custom" && i.custom);
@@ -146,8 +155,22 @@ export default function Commander() {
       }
 
       clearCart();
+      // Paiement en ligne : redirection vers la page sécurisée ABMCY Core
+      // Payment. Si le paiement est indisponible, la commande reste
+      // enregistrée et l'atelier recontacte le client.
+      try {
+        const returnUrl = `${window.location.origin}${window.location.pathname}#/paiement-confirme?commande=${encodeURIComponent(order.order_number)}`;
+        const res = await payOrder(order.id, plan, returnUrl);
+        if (res.payment.payment_url) {
+          window.location.href = res.payment.payment_url;
+          return;
+        }
+        setPaymentDown(true);
+      } catch {
+        setPaymentDown(true);
+      }
       setPlaced(order);
-      toast(`Commande ${order.order_number} confirmée — reçu envoyé`);
+      toast(`Commande ${order.order_number} enregistrée`);
       window.scrollTo({ top: 0, behavior: "auto" });
     } catch (e) {
       setError(
@@ -217,11 +240,64 @@ export default function Commander() {
               <h2 className="font-display flex items-baseline gap-4 text-3xl font-semibold text-cocoa-900">
                 <span className="font-display text-lg text-cognac-600 italic">02</span> Paiement
               </h2>
-              <div className="mt-6 border border-sand-300/80 bg-sand-100/70 p-5">
-                <p className="text-sm text-cocoa-700">
-                  Paiement à la livraison. Vous réglerez <strong>{fmtPrice(cartTotal)}</strong> directement au livreur, à la réception de votre commande.
-                </p>
+              <div className="mt-6 grid gap-3">
+                {([
+                  {
+                    id: "deposit" as const,
+                    title: `Acompte de 50 % — ${fmtPrice(deposit)} maintenant`,
+                    text: `Le reste (${fmtPrice(cartTotal - deposit)}) à la livraison : par lien de paiement ou en espèces au livreur, comme vous préférez.`,
+                    badge: "Recommandé",
+                  },
+                  {
+                    id: "full" as const,
+                    title: `Tout régler maintenant — ${fmtPrice(cartTotal)}`,
+                    text: "Rien à payer à la livraison.",
+                    badge: "",
+                  },
+                ]).map((o) => (
+                  <label
+                    key={o.id}
+                    className={`flex cursor-pointer items-start gap-4 border p-5 transition-colors ${
+                      plan === o.id ? "border-cognac-500 bg-sand-100" : "border-sand-300/80 bg-sand-50 hover:border-cognac-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="plan"
+                      checked={plan === o.id}
+                      onChange={() => setPlan(o.id)}
+                      className="mt-1 accent-cognac-600"
+                    />
+                    <span className="min-w-0">
+                      <span className="flex flex-wrap items-center gap-2 font-medium text-cocoa-900">
+                        {o.title}
+                        {o.badge && (
+                          <span className="bg-cognac-500/15 px-2 py-0.5 text-[10px] tracking-[0.16em] text-cognac-700 uppercase">
+                            {o.badge}
+                          </span>
+                        )}
+                      </span>
+                      <span className="mt-1 block text-sm text-cocoa-600">{o.text}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
+              <div className="mt-5 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] tracking-[0.2em] text-cocoa-500 uppercase">Payez avec</span>
+                {[
+                  { name: "Wave", cls: "bg-[#1dc8f2] text-white" },
+                  { name: "Orange Money", cls: "bg-[#ff7900] text-white" },
+                  { name: "Free Money", cls: "bg-[#cd0a2c] text-white" },
+                  { name: "Carte bancaire", cls: "bg-cocoa-800 text-sand-50" },
+                ].map((m) => (
+                  <span key={m.name} className={`rounded-full px-3 py-1 text-xs font-semibold ${m.cls}`}>
+                    {m.name}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-4 text-[12.5px] text-cocoa-500">
+                Paiement sécurisé par ABMCY Core Payment. Vous choisissez votre moyen de paiement à l'étape suivante.
+              </p>
             </section>
           </Reveal>
         </div>
@@ -263,16 +339,17 @@ export default function Commander() {
               {processing ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-sand-100/40 border-t-sand-100" />
-                  Envoi de la commande…
+                  Préparation du paiement…
                 </>
               ) : (
                 <>
-                  Confirmer — paiement à la livraison <IconArrow size={15} />
+                  {plan === "deposit" ? `Payer l'acompte — ${fmtPrice(deposit)}` : `Payer — ${fmtPrice(cartTotal)}`}{" "}
+                  <IconArrow size={15} />
                 </>
               )}
             </button>
             <p className="mt-4 text-center text-[11.5px] leading-relaxed text-cocoa-500">
-              Confirmation automatique par e-mail.
+              Paiement sécurisé · confirmation automatique par e-mail.
               <br />
               Retouches incluses sous 15 jours.
             </p>
