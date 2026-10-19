@@ -147,9 +147,11 @@ async function apiRequest<T>(
     headers['X-API-Key'] = TENANT_API_KEY;
   }
 
-  // Ajouter le JWT si présent (pour les routes protégées)
+  // Jeton du client connecté : uniquement pour ses propres routes
+  // (/auth/customer/...). Envoyé ailleurs, l'API le prenait pour un jeton
+  // du personnel et refusait catalogue et galerie (401).
   const token = localStorage.getItem('abmcy_token');
-  if (token) {
+  if (token && endpoint.startsWith('/auth/customer/')) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
@@ -439,11 +441,6 @@ export async function uploadImage(file: File): Promise<UploadResult> {
 
   if (TENANT_API_KEY) {
     headers['X-API-Key'] = TENANT_API_KEY;
-  }
-
-  const token = localStorage.getItem('abmcy_token');
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
   }
 
   const response = await fetch(url, {
