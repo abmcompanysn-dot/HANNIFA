@@ -10,6 +10,7 @@ import {
   type Order as ApiOrder,
 } from "../services/abmcy";
 import { Reveal } from "../components/Reveal";
+import PaymentLogos from "../components/PaymentLogos";
 import { IconArrow, IconBag } from "../components/Icons";
 
 export default function Commander() {
@@ -284,16 +285,7 @@ export default function Commander() {
               </div>
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 <span className="text-[11px] tracking-[0.2em] text-cocoa-500 uppercase">Payez avec</span>
-                {[
-                  { name: "Wave", cls: "bg-[#1dc8f2] text-white" },
-                  { name: "Orange Money", cls: "bg-[#ff7900] text-white" },
-                  { name: "Free Money", cls: "bg-[#cd0a2c] text-white" },
-                  { name: "Carte bancaire", cls: "bg-cocoa-800 text-sand-50" },
-                ].map((m) => (
-                  <span key={m.name} className={`rounded-full px-3 py-1 text-xs font-semibold ${m.cls}`}>
-                    {m.name}
-                  </span>
-                ))}
+                <PaymentLogos />
               </div>
               <p className="mt-4 text-[12.5px] text-cocoa-500">
                 Paiement sécurisé par ABMCY Core Payment. Vous choisissez votre moyen de paiement à l'étape suivante.

@@ -6,6 +6,8 @@ import { listProducts, listGallery, type GalleryItem } from "../services/abmcy";
 import { mapProducts } from "../lib/mapProduct";
 import { MaskLines, Reveal } from "../components/Reveal";
 import ProductCard from "../components/ProductCard";
+import AtelierStory from "../components/AtelierStory";
+import { Parallax } from "../components/ScrollFx";
 import {
   IconArrow,
   IconCard,
@@ -23,7 +25,8 @@ const MARQUEE = [
   "Couture main",
   "Tissus premium",
   "Confection 5 jours",
-  "Paiement Wave · OM · Free Money",
+  "Acompte 50 % · solde à la livraison",
+  "Wave · Orange Money · Free Money",
   "Retouches incluses",
 ];
 
@@ -110,11 +113,13 @@ export default function Home() {
             <Reveal delay={150}>
               <div className="arch pointer-events-none absolute -inset-3 translate-x-4 translate-y-4 border border-cognac-500/40" />
               <div className="arch relative overflow-hidden border border-sand-300/80">
-                <img
-                  src="https://abmcy.mahu.cards/c5a72dc0-54c9-4f3a-aa76-67a013e265f9/a7f9ed55-df37-4ca1-b9af-df2e6f6a61d3-Gemini_Generated_Image_n4vhw6n4vhw6n4vh.jpg"
-                  alt="Collection Héritage HANI'S — mannequin de couturière et ruban à mesurer"
-                  className="h-[440px] w-full animate-kenburns object-cover object-top sm:h-[560px] lg:h-[640px]"
-                />
+                <Parallax strength={36} className="-my-10">
+                  <img
+                    src="https://abmcy.mahu.cards/c5a72dc0-54c9-4f3a-aa76-67a013e265f9/a7f9ed55-df37-4ca1-b9af-df2e6f6a61d3-Gemini_Generated_Image_n4vhw6n4vhw6n4vh.jpg"
+                    alt="Collection Héritage HANI'S — mannequin de couturière et ruban à mesurer"
+                    className="h-[520px] w-full animate-kenburns object-cover object-top sm:h-[640px] lg:h-[720px]"
+                  />
+                </Parallax>
                 <div className="absolute inset-0 bg-gradient-to-t from-cocoa-950/35 via-transparent to-transparent" />
               </div>
             </Reveal>
@@ -266,11 +271,13 @@ export default function Home() {
         <div className="mt-12 grid gap-6 lg:grid-cols-12">
           <Reveal className="lg:col-span-7">
             <Link to="/boutique/femme" className="arch-sm group relative block h-[440px] overflow-hidden sm:h-[540px]">
-              <img
-                src="/images/couture-simple.jpg"
-                alt="Collection Femme HANI'S"
-                className="h-full w-full object-cover object-top transition-transform duration-[1.4s] ease-out group-hover:scale-[1.06]"
-              />
+              <Parallax strength={30} className="absolute -inset-y-10 inset-x-0">
+                <img
+                  src="/images/couture-simple.jpg"
+                  alt="Collection Femme HANI'S"
+                  className="h-[calc(440px+80px)] w-full object-cover object-top transition-transform duration-[1.4s] ease-out group-hover:scale-[1.06] sm:h-[calc(540px+80px)]"
+                />
+              </Parallax>
               <div className="absolute inset-0 bg-gradient-to-t from-cocoa-950/85 via-cocoa-950/20 to-transparent" />
               <div className="absolute right-6 bottom-6 left-6 flex items-end justify-between gap-4">
                 <div>
@@ -293,11 +300,13 @@ export default function Home() {
 
           <Reveal delay={150} className="lg:col-span-5">
             <Link to="/boutique/homme" className="arch-sm group relative block h-[440px] overflow-hidden sm:h-[540px]">
-              <img
-                src="/images/homme-costume.jpg"
-                alt="Collection Homme HANI'S"
-                className="h-full w-full object-cover object-top transition-transform duration-[1.4s] ease-out group-hover:scale-[1.06]"
-              />
+              <Parallax strength={30} className="absolute -inset-y-10 inset-x-0">
+                <img
+                  src="/images/homme-costume.jpg"
+                  alt="Collection Homme HANI'S"
+                  className="h-[calc(440px+80px)] w-full object-cover object-top transition-transform duration-[1.4s] ease-out group-hover:scale-[1.06] sm:h-[calc(540px+80px)]"
+                />
+              </Parallax>
               <div className="absolute inset-0 bg-gradient-to-t from-cocoa-950/85 via-cocoa-950/20 to-transparent" />
               <div className="absolute right-6 bottom-6 left-6 flex items-end justify-between gap-4">
                 <div>
@@ -401,6 +410,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* ================= DU FIL À VOTRE PORTE (animation au défilement) ================= */}
+      <AtelierStory />
 
       {/* ================= SUR MESURE ================= */}
       <section className="relative mt-24 overflow-hidden bg-cocoa-900 text-sand-100 lg:mt-32">

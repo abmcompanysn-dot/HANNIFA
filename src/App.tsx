@@ -14,6 +14,7 @@ import EspaceClient from "./pages/EspaceClient";
 import Galerie from "./pages/Galerie";
 import SuspendedGate from "./components/SuspendedGate";
 import PaiementConfirme from "./pages/PaiementConfirme";
+import { ScrollProgressBar } from "./components/ScrollFx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -93,6 +94,7 @@ export default function App() {
         <Toasts />
         <WhatsAppFloat />
         <div className="noise-layer" aria-hidden />
+        <ScrollProgressBar />
       </HashRouter>
     </StoreProvider>
     </SuspendedGate>

@@ -14,6 +14,7 @@ import {
   IconWhatsApp,
 } from "./Icons";
 import { SOCIALS } from "../data/catalog";
+import PaymentLogos from "./PaymentLogos";
 
 const SOCIAL_ICONS: Record<string, (p: { size?: number }) => ReactNode> = {
   instagram: (p) => <IconInstagram {...p} />,
@@ -171,24 +172,13 @@ export default function Footer() {
       {/* moyens de paiement */}
       <div className="border-t border-sand-100/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-5 py-6 sm:flex-row lg:px-8">
-          <p className="text-[11px] uppercase tracking-[0.22em] text-sand-300">Paiement sécurisé</p>
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <span className="rounded-[5px] bg-[#1b9cd8] px-3 py-1.5 text-[11px] font-semibold tracking-wide text-sand-50">
-              Wave
-            </span>
-            <span className="rounded-[5px] bg-[#e8710a] px-3 py-1.5 text-[11px] font-semibold tracking-wide text-sand-50">
-              Orange Money
-            </span>
-            <span className="rounded-[5px] bg-[#d42b2b] px-3 py-1.5 text-[11px] font-semibold tracking-wide text-sand-50">
-              Free Money
-            </span>
-            <span className="rounded-[5px] border border-sand-100/25 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-sand-200">
-              VISA
-            </span>
-            <span className="rounded-[5px] border border-sand-100/25 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-sand-200">
-              Mastercard
-            </span>
+          <div className="text-center sm:text-left">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-sand-300">Paiement sécurisé</p>
+            <p className="mt-1 text-[12.5px] text-sand-300/80">
+              Acompte de 50 % à la commande · solde à la livraison, par lien ou en espèces
+            </p>
           </div>
+          <PaymentLogos className="justify-center" />
         </div>
       </div>
 
