@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://api.abmcy.com/tenants/hanis/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://api.abmcy.com/tenants/hanis/robots.txt"
+    },
+    {
+      "source": "/product-feed.xml",
+      "destination": "https://api.abmcy.com/tenants/hanis/product-feed.xml"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
