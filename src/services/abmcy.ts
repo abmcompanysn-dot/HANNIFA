@@ -375,17 +375,25 @@ export async function createCustomOrder(data: {
 }
 
 /**
- * Lister toutes les commandes
+ * Commandes du client connecté (espace client) — PAS toutes les commandes
+ * de la boutique. Appelle /auth/customer/orders, scopée côté serveur par
+ * customer_id (voir internal/order.Service.ListForCustomer). L'ancienne
+ * implémentation appelait /orders, qui est la route réservée au
+ * personnel de la boutique (X-API-Key) : avec la clé publique toujours
+ * envoyée par ce client (voir apiRequest ci-dessus), un client connecté
+ * dans son espace voyait l'intégralité des commandes de HANI'S au lieu
+ * des siennes uniquement.
  */
 export async function listOrders(): Promise<Order[]> {
-  return apiRequest('/orders');
+  return apiRequest('/auth/customer/orders');
 }
 
 /**
- * Consulter une commande
+ * Consulter une commande du client connecté — même correctif que
+ * listOrders ci-dessus, route scopée au client plutôt qu'à la boutique.
  */
 export async function getOrder(orderId: string): Promise<Order> {
-  return apiRequest(`/orders/${orderId}`);
+  return apiRequest(`/auth/customer/orders/${orderId}`);
 }
 
 /**
