@@ -279,7 +279,11 @@ export default function ProductDetail() {
             </p>
           </div>
 
-          <p className="mt-6 max-w-lg text-[15.5px] leading-relaxed text-cocoa-700">{product.description}</p>
+          {/* Une fiche sans description retombe sur le nom (voir mapProduct) :
+              inutile de le répéter sous le titre. */}
+          {product.description && product.description !== product.name && (
+            <p className="mt-6 max-w-lg text-[15.5px] leading-relaxed text-cocoa-700">{product.description}</p>
+          )}
 
           {/* couleur */}
           <div className="mt-9">

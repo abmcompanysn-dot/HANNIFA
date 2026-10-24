@@ -167,9 +167,11 @@ body {
   line-height: 0.8;
   letter-spacing: 0.02em;
   white-space: nowrap;
-  color: transparent;
+  /* contour seul : le remplissage est transparent, le trait prend la
+     couleur de la nuance (posée en style inline sur l'élément) */
+  -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 1px currentColor;
-  opacity: 0.4;
+  opacity: 0.3;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   animation: fx-drift 14s ease-in-out infinite alternate;
