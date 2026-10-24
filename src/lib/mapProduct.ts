@@ -40,7 +40,14 @@ export function mapProduct(p: ApiProduct): UiProduct {
 
   const gender: "femme" | "homme" = attrs.gender === "homme" ? "homme" : "femme";
 
-  const image = attrs.image_url || p.image_url || "images/hero.jpg";
+  // L'API ABMCY Core renvoie les photos dans un tableau `images`
+  // (internal/catalog.ProductImage), jamais un champ `image_url` plat sur
+  // le produit — p.image_url n'a jamais existé, c'était la cause des
+  // images cassées sur toute la boutique (repli silencieux sur
+  // "images/hero.jpg", lui-même absent en production). attrs.image_url
+  // reste prioritaire pour les produits qui l'auraient défini à la main
+  // dans leurs attributs.
+  const image = attrs.image_url || p.images?.[0]?.url || "images/hero.jpg";
 
   return {
     id: p.id,

@@ -58,6 +58,11 @@ export type Measurement = {
   created_at: string;
 };
 
+export type ProductImage = {
+  id: string;
+  url: string;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -67,7 +72,11 @@ export type Product = {
   stock_quantity?: number;
   attributes?: Record<string, any>;
   is_featured?: boolean;
-  image_url?: string;
+  // L'API ABMCY Core renvoie un tableau `images` (internal/catalog.
+  // ProductImage côté backend), jamais un champ `image_url` plat — ce
+  // champ n'a jamais existé sur ce type, voir mapProduct.ts qui lisait
+  // p.image_url (toujours undefined) avant ce correctif.
+  images?: ProductImage[];
   description?: string;
 };
 
