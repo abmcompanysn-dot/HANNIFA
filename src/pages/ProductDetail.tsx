@@ -6,7 +6,8 @@ import { listProducts, ABMCYApiError } from "../services/abmcy";
 import { mapProducts } from "../lib/mapProduct";
 import { useStore } from "../context/StoreContext";
 import ProductCard from "../components/ProductCard";
-import { Reveal } from "../components/Reveal";
+import { Reveal, useInView } from "../components/Reveal";
+import { nuanceFor, type Nuance } from "../lib/nuance";
 import {
   IconArrow,
   IconBag,
@@ -20,10 +21,93 @@ import {
 } from "../components/Icons";
 
 const CROPS = [
-  { label: "Vue silhouette", pos: "center top" },
-  { label: "Vue taille", pos: "center 45%" },
-  { label: "Vue détail", pos: "center 82%" },
+  { label: "Vue silhouette", pos: "center top", shape: "rounded-full h-24 w-24" },
+  { label: "Vue taille", pos: "center 45%", shape: "rounded-full h-32 w-20" },
+  { label: "Vue détail", pos: "center 82%", shape: "arch-sm h-28 w-24" },
 ];
+
+/**
+ * Composition éditoriale de la fiche, dans l'esprit du catalogue : grande
+ * arche tranchée en diagonale (fausse coupure — les deux moitiés arrivent
+ * de part et d'autre puis restent décalées, et se rejoignent au survol),
+ * vues de détail en formes, mot géant en contour qui dérive lentement et
+ * bande de dégradé de la nuance qui se déploie. Monté une fois le produit
+ * chargé, pour que l'apparition se joue à l'arrivée sur la page.
+ */
+function ProductStage({
+  product,
+  color,
+  crop,
+  onCrop,
+  nuance,
+}: {
+  product: UiProduct;
+  color: UiProduct["colors"][number];
+  crop: number;
+  onCrop: (i: number) => void;
+  nuance: Nuance;
+}) {
+  const { ref, inView } = useInView<HTMLDivElement>(0.15);
+  const word = product.name.split(" ")[0].toUpperCase();
+  const imgStyle = { filter: color.filter || undefined, objectPosition: CROPS[crop].pos };
+
+  return (
+    <div ref={ref} className={`fx-stage ${inView ? "is-in" : ""}`}>
+      <span aria-hidden className="fx-ghost" style={{ color: nuance.accent }}>
+        {word}
+      </span>
+      <span aria-hidden className="fx-band" style={{ background: nuance.grad }} />
+
+      <div className="fx-cut arch relative mx-auto aspect-[3/4.1] w-[84%] bg-sand-200">
+        <img
+          src={product.image}
+          alt={`${product.name} — coloris ${color.name}`}
+          className="fx-half fx-a"
+          style={imgStyle}
+        />
+        <img src={product.image} alt="" aria-hidden className="fx-half fx-b" style={imgStyle} />
+        {product.isNew && (
+          <span className="absolute top-6 left-1/2 z-[1] -translate-x-1/2 bg-cognac-500 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-sand-50">
+            Nouveauté
+          </span>
+        )}
+      </div>
+
+      <div className="relative z-[1] -mt-16 flex items-end justify-center gap-4">
+        {CROPS.map((c, i) => (
+          <button
+            key={c.label}
+            onClick={() => onCrop(i)}
+            title={c.label}
+            aria-label={c.label}
+            aria-pressed={crop === i}
+            className={`fx-thumb ${c.shape}`}
+            style={{ ["--d" as string]: `${500 + i * 120}ms` }}
+          >
+            <img
+              src={product.image}
+              alt=""
+              className="h-full w-full object-cover"
+              style={{ filter: color.filter || undefined, objectPosition: c.pos }}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RevealTitle({ children }: { children: string }) {
+  const { ref, inView } = useInView<HTMLHeadingElement>(0.3);
+  return (
+    <h1
+      ref={ref}
+      className={`mask-line font-display mt-3 text-5xl leading-none font-semibold text-cocoa-900 sm:text-6xl ${inView ? "is-in" : ""}`}
+    >
+      <span>{children}</span>
+    </h1>
+  );
+}
 
 const ACCORDIONS = [
   {
@@ -138,7 +222,13 @@ export default function ProductDetail() {
     );
   };
 
-  const similar = products.filter((p) => p.gender === product.gender && p.id !== product.id).slice(0, 4);
+  const nuance = nuanceFor(product.name);
+  // Même nuance d'abord (comme un chapitre du catalogue), puis même rayon.
+  const others = products.filter((p) => p.gender === product.gender && p.id !== product.id);
+  const similar = [
+    ...others.filter((p) => nuanceFor(p.name).key === nuance.key),
+    ...others.filter((p) => nuanceFor(p.name).key !== nuance.key),
+  ].slice(0, 4);
 
   return (
     <div className="mx-auto max-w-7xl px-5 pt-10 lg:px-8">
@@ -161,57 +251,26 @@ export default function ProductDetail() {
       <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:gap-16">
         {/* ------- visuels ------- */}
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <Reveal>
-            <div className="relative overflow-hidden arch border border-sand-300/80 bg-sand-200">
-              <img
-                src={product.image}
-                alt={`${product.name} — coloris ${color.name}`}
-                className="aspect-[3/4.1] w-full object-cover transition-[filter] duration-700"
-                style={{
-                  filter: color.filter || undefined,
-                  objectPosition: CROPS[crop].pos,
-                }}
-              />
-              <div className="absolute top-5 left-1/2 -translate-x-1/2">
-                {product.isNew && (
-                  <span className="bg-cognac-500 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-sand-50">
-                    Nouveauté
-                  </span>
-                )}
-              </div>
-            </div>
-          </Reveal>
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {CROPS.map((c, i) => (
-              <button
-                key={c.label}
-                onClick={() => setCrop(i)}
-                title={c.label}
-                className={`cursor-pointer overflow-hidden rounded-[6px] border transition-all duration-300 ${
-                  crop === i
-                    ? "border-cognac-500 ring-2 ring-cognac-500/25"
-                    : "border-sand-300/70 opacity-70 hover:opacity-100"
-                }`}
-              >
-                <img
-                  src={product.image}
-                  alt={c.label}
-                  className="aspect-[3/3.4] w-full object-cover"
-                  style={{ filter: color.filter || undefined, objectPosition: c.pos }}
-                />
-              </button>
-            ))}
-          </div>
+          <ProductStage
+            key={product.id}
+            product={product}
+            color={color}
+            crop={crop}
+            onCrop={setCrop}
+            nuance={nuance}
+          />
         </div>
 
         {/* ------- infos ------- */}
         <div>
-          <p className="eyebrow">
+          <p className="eyebrow flex items-center gap-3">
+            <span aria-hidden className="inline-block h-2.5 w-10 rounded-full" style={{ background: nuance.grad }} />
+            Nuance {nuance.label}
+          </p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-cocoa-500">
             {product.gender === "femme" ? "Femme" : "Homme"} · {product.sub}
           </p>
-          <h1 className="font-display mt-3 text-5xl leading-none font-semibold text-cocoa-900 sm:text-6xl">
-            {product.name}
-          </h1>
+          <RevealTitle key={product.id}>{product.name}</RevealTitle>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-x-5 gap-y-1">
             <p className="font-display text-4xl font-semibold text-cognac-600">{fmtPrice(product.price)}</p>
@@ -363,7 +422,7 @@ export default function ProductDetail() {
         <section className="mt-24">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="eyebrow">Dans le même esprit</p>
+              <p className="eyebrow">Dans la nuance {nuance.label}</p>
               <h2 className="font-display mt-2 text-4xl font-semibold text-cocoa-900">
                 Vous aimerez aussi
               </h2>
