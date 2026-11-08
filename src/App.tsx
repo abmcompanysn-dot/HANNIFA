@@ -15,11 +15,23 @@ import Galerie from "./pages/Galerie";
 import SuspendedGate from "./components/SuspendedGate";
 import PaiementConfirme from "./pages/PaiementConfirme";
 import { ScrollProgressBar } from "./components/ScrollFx";
+import { trackVisit } from "./lib/visit";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathname]);
+  return null;
+}
+
+/** Une page vue par changement de page (compteur de visiteurs ABMCY). */
+function VisitTracker() {
+  const { pathname, search } = useLocation();
+  useEffect(() => {
+    trackVisit(pathname, search);
+    // search lu une seule fois par page : un changement de filtre n'est pas une nouvelle page
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
   return null;
 }
@@ -72,6 +84,7 @@ export default function App() {
     <StoreProvider>
       <HashRouter>
         <ScrollToTop />
+        <VisitTracker />
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">

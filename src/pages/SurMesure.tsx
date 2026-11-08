@@ -185,6 +185,7 @@ export default function SurMesure() {
         fabricId: fabricSource === "maison" ? (fabricId ?? undefined) : undefined,
         fabricName: fabricSource === "maison" && fabric ? fabric.name : undefined,
         fabricFileName: fabricSource === "envoi" ? fileName ?? undefined : undefined,
+        fabricPhotoUrl: fabricSource === "envoi" ? fabricUploadUrl ?? undefined : undefined,
         comment: fullComment || undefined,
       },
     });

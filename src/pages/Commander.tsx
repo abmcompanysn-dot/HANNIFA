@@ -118,6 +118,18 @@ export default function Commander() {
       const notes = form.note?.trim() ? `${notePrefix} ${form.note.trim()}` : notePrefix;
 
       const customItem = cart.find((i) => i.kind === "custom" && i.custom);
+      // Articles du catalogue avec la taille et la couleur choisies : la
+      // boutique voit la photo de chaque modèle commandé, et le serveur
+      // recalcule le prix depuis le catalogue.
+      const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+      const lines = cart
+        .filter((i) => i.kind === "product" && isUuid(i.productId))
+        .map((i) => {
+          const options: Record<string, string> = {};
+          if (i.size) options["Taille"] = i.size;
+          if (i.colorName) options["Couleur"] = i.colorName;
+          return { product_id: i.productId as string, quantity: i.qty, options };
+        });
       let order: ApiOrder;
 
       if (customItem?.custom) {
@@ -140,9 +152,13 @@ export default function Commander() {
           shipping_address,
           total_amount: cartTotal,
           measurements,
-          fabric_id: c.fabricId,
+          fabric_id: isUuid(c.fabricId) ? c.fabricId : undefined,
           fabric_source: fabricSourceMap[c.fabricSource],
           notes,
+          items: lines.length > 0 ? lines : undefined,
+          custom_amount: lines.length > 0 ? customItem.price * customItem.qty : undefined,
+          model_product_id: isUuid(customItem.productId) ? customItem.productId : undefined,
+          fabric_photo_url: c.fabricPhotoUrl,
         });
       } else {
         order = await createOrder({
@@ -150,6 +166,7 @@ export default function Commander() {
           customer_phone: form.phone.trim(),
           customer_email: form.email.trim() || undefined,
           total_amount: cartTotal,
+          items: lines.length > 0 ? lines : undefined,
           shipping_address,
           notes,
         });

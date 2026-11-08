@@ -24,6 +24,8 @@ export type CustomDetails = {
   fabricId?: string;
   fabricName?: string;
   fabricFileName?: string;
+  /** Adresse de la photo du tissu envoyée sur ABMCY (envoi par le client). */
+  fabricPhotoUrl?: string;
   comment?: string;
 };
 

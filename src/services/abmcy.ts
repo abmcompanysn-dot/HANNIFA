@@ -331,11 +331,17 @@ export async function updateCustomerProfile(data: Partial<Customer>): Promise<Cu
 /**
  * Créer une commande standard
  */
+/** Article du panier envoyé à l'API : le prix est relu par le serveur
+ * dans le catalogue, seules la quantité et les options (taille, couleur)
+ * viennent du site. */
+export type OrderLine = { product_id: string; quantity: number; options?: Record<string, string> };
+
 export async function createOrder(data: {
   customer_name: string;
   customer_phone: string;
   customer_email?: string;
   total_amount: number;
+  items?: OrderLine[];
   measurements?: Record<string, number>;
   shipping_address?: string;
   notes?: string;
@@ -376,6 +382,13 @@ export async function createCustomOrder(data: {
   fabric_id?: string;
   fabric_source?: 'maison' | 'envoi_photo' | 'conseil_atelier';
   notes?: string;
+  /** Panier mixte : articles du catalogue + part sur mesure (custom_amount). */
+  items?: OrderLine[];
+  custom_amount?: number;
+  /** Modèle du catalogue choisi comme base de la création. */
+  model_product_id?: string;
+  /** Photo du tissu du client, déjà envoyée par uploadFabricPhoto. */
+  fabric_photo_url?: string;
 }): Promise<CustomOrder> {
   return apiRequest('/custom-orders', {
     method: 'POST',
