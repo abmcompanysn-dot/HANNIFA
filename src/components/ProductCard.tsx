@@ -67,7 +67,8 @@ export default function ProductCard({
 
       <div className="flex flex-1 flex-col pt-4">
         <p className="text-[10.5px] font-medium uppercase tracking-[0.24em] text-cocoa-500">
-          {product.gender === "femme" ? "Femme" : "Homme"} · {product.sub}
+          {product.gender === "femme" ? "Femme" : "Homme"}
+          {product.sub && product.sub !== "Non classé" && <> · {product.sub}</>}
         </p>
         <Link
           to={`/produit/${product.id}`}

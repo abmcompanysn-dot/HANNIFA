@@ -268,7 +268,8 @@ export default function ProductDetail() {
             Nuance {nuance.label}
           </p>
           <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-cocoa-500">
-            {product.gender === "femme" ? "Femme" : "Homme"} · {product.sub}
+            {product.gender === "femme" ? "Femme" : "Homme"}
+          {product.sub && product.sub !== "Non classé" && <> · {product.sub}</>}
           </p>
           <RevealTitle key={product.id}>{product.name}</RevealTitle>
 

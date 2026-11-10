@@ -48,7 +48,7 @@ export default function Boutique() {
 
   const subs = useMemo(() => {
     const relevant = gender === "all" ? products : products.filter((p) => p.gender === gender);
-    const distinct = Array.from(new Set(relevant.map((p) => p.sub))).filter(Boolean);
+    const distinct = Array.from(new Set(relevant.map((p) => p.sub))).filter((x) => x && x !== "Non classé");
     distinct.sort((a, b) => a.localeCompare(b, "fr"));
     return distinct;
   }, [products, gender]);
