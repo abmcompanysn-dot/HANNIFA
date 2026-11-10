@@ -5,12 +5,17 @@ import {
   listOrders,
   loginCustomer,
   registerCustomer,
+  forgotCustomerPassword,
+  resetCustomerPassword,
+  getCustomerProfile,
+  updateCustomerProfile,
   setToken,
   clearToken,
   isAuthenticated,
   formatDate,
   ABMCYApiError,
   type Order as ApiOrder,
+  type Customer as ApiCustomer,
 } from "../services/abmcy";
 import { MaskLines, Reveal } from "../components/Reveal";
 import {
@@ -101,95 +106,371 @@ function Timeline({ stage, cancelled }: { stage: number; cancelled?: boolean }) 
   );
 }
 
-function LoginForm({ onLoggedIn }: { onLoggedIn: () => void }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
+type Mode = "login" | "register" | "forgot" | "reset";
+
+/** Jeton du lien « Choisir mon mot de passe » reçu par email (?reset_token=…). */
+function readResetToken(): string {
+  try {
+    return new URLSearchParams(window.location.search).get("reset_token") ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function clearResetToken() {
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("reset_token");
+    window.history.replaceState(null, "", url.toString());
+  } catch {
+    /* rien */
+  }
+}
+
+const PASSWORD_RULE = "8 caractères minimum, avec au moins une lettre et un chiffre.";
+const passwordOk = (pw: string) => pw.length >= 8 && /[A-Za-zÀ-ÿ]/.test(pw) && /\d/.test(pw);
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  autoComplete,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete: string;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <div className="relative">
+        <input
+          className="field !pr-20"
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          placeholder="••••••••"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((v) => !v)}
+          className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-[11px] font-medium tracking-[0.14em] text-cognac-600 uppercase"
+        >
+          {show ? "Masquer" : "Afficher"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AccountForm({ onLoggedIn }: { onLoggedIn: () => void }) {
+  const [resetToken] = useState(readResetToken);
+  const [mode, setMode] = useState<Mode>(resetToken ? "reset" : "login");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const submit = async () => {
+  const go = (m: Mode) => {
+    setMode(m);
     setError(null);
-    if (!phone.trim() || !password.trim()) {
-      setError("Indiquez votre numéro de téléphone et votre mot de passe.");
-      return;
+    setNotice(null);
+    setPassword("");
+    setConfirm("");
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setNotice(null);
+
+    if (mode === "login" && (!identifier.trim() || !password)) {
+      return setError("Indiquez votre numéro (ou email) et votre mot de passe.");
     }
+    if (mode === "register") {
+      if (!name.trim() || !phone.trim()) return setError("Indiquez votre nom et votre numéro de téléphone.");
+      if (email.trim() && !email.includes("@")) return setError("Adresse email invalide.");
+    }
+    if (mode === "register" || mode === "reset") {
+      if (!passwordOk(password)) return setError(`Mot de passe trop simple : ${PASSWORD_RULE}`);
+      if (password !== confirm) return setError("Les deux mots de passe ne sont pas identiques.");
+    }
+    if (mode === "forgot" && !identifier.trim()) {
+      return setError("Indiquez le numéro ou l'email de votre compte.");
+    }
+
     setLoading(true);
     try {
-      const { token } = mode === "login" ? await loginCustomer(phone.trim(), password) : await registerCustomer(phone.trim(), password);
-      setToken(token);
-      onLoggedIn();
-    } catch (e) {
-      setError(
-        e instanceof ABMCYApiError
-          ? e.message
-          : "Connexion impossible pour le moment, réessayez."
-      );
+      if (mode === "login") {
+        const { token } = await loginCustomer(identifier.trim(), password);
+        setToken(token);
+        onLoggedIn();
+      } else if (mode === "register") {
+        const { token } = await registerCustomer({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim() || undefined,
+          password,
+        });
+        setToken(token);
+        onLoggedIn();
+      } else if (mode === "forgot") {
+        const r = await forgotCustomerPassword(identifier.trim());
+        setNotice(r.message || "Si un compte correspond, un lien vient d'être envoyé par email.");
+      } else {
+        await resetCustomerPassword(resetToken, password);
+        clearResetToken();
+        go("login");
+        setNotice("Mot de passe enregistré. Connectez-vous avec votre numéro (ou email) et ce nouveau mot de passe.");
+      }
+    } catch (err) {
+      setError(err instanceof ABMCYApiError ? err.message : "Connexion impossible pour le moment, réessayez.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="mx-auto mt-14 max-w-md border border-sand-300/80 bg-sand-50/70 p-8">
-      <h2 className="font-display text-2xl font-semibold text-cocoa-900">
-        {mode === "login" ? "Connexion à votre espace" : "Créer votre espace client"}
-      </h2>
-      <p className="mt-2 text-sm text-cocoa-500">
-        {mode === "login"
-          ? "Retrouvez l'historique et le suivi de vos commandes HANI'S."
-          : "Un compte existe déjà après votre première commande — définissez un mot de passe pour y accéder."}
-      </p>
+  const titles: Record<Mode, [string, string]> = {
+    login: ["Connexion à votre espace", "Suivez vos commandes, retrouvez vos mesures et commandez plus vite."],
+    register: ["Créer votre compte", "En une minute. Vos commandes déjà passées avec ce numéro y apparaîtront automatiquement."],
+    forgot: ["Mot de passe oublié", "Nous envoyons un lien pour en choisir un nouveau à l'email de votre compte."],
+    reset: ["Nouveau mot de passe", "Choisissez votre nouveau mot de passe."],
+  };
+  const submitLabel: Record<Mode, string> = {
+    login: "Se connecter",
+    register: "Créer mon compte",
+    forgot: "Envoyer le lien",
+    reset: "Enregistrer le mot de passe",
+  };
 
-      {error && (
-        <p className="mt-5 border-l-2 border-cognac-600 bg-cognac-500/10 px-4 py-3 text-sm text-cognac-700">
-          {error}
-        </p>
+  return (
+    <div className="mx-auto mt-14 max-w-md">
+      {(mode === "login" || mode === "register") && (
+        <div className="grid grid-cols-2 border border-sand-300/80 bg-sand-50/60 p-1" role="tablist">
+          {(["login", "register"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              role="tab"
+              aria-selected={mode === m}
+              onClick={() => go(m)}
+              className={`cursor-pointer py-3 text-[11.5px] font-semibold tracking-[0.18em] uppercase transition-colors ${
+                mode === m ? "bg-cocoa-800 text-sand-100" : "text-cocoa-700 hover:text-cognac-600"
+              }`}
+            >
+              {m === "login" ? "J'ai un compte" : "Nouvelle cliente"}
+            </button>
+          ))}
+        </div>
       )}
 
-      <div className="mt-6 space-y-4">
-        <div>
-          <label className="label">Numéro de téléphone</label>
-          <input
-            className="field"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+221 77 000 00 00"
-          />
-        </div>
-        <div>
-          <label className="label">Mot de passe</label>
-          <input
-            className="field"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-          />
-        </div>
-      </div>
-
-      <button onClick={submit} disabled={loading} className="btn-primary mt-6 w-full disabled:cursor-wait disabled:opacity-80">
-        {loading ? (
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-sand-100/40 border-t-sand-100" />
-        ) : mode === "login" ? (
-          "Se connecter"
-        ) : (
-          "Créer mon compte"
-        )}
-      </button>
-
-      <button
-        onClick={() => {
-          setMode(mode === "login" ? "register" : "login");
-          setError(null);
-        }}
-        className="mt-4 w-full cursor-pointer text-center text-[12.5px] text-cognac-600 underline-offset-4 hover:underline"
+      <form
+        onSubmit={submit}
+        className="mt-4 border border-sand-300/80 bg-gradient-to-br from-sand-50/95 via-sand-50/80 to-sand-200/60 p-8 shadow-[0_30px_70px_-40px_rgba(60,42,27,0.55)]"
       >
-        {mode === "login" ? "Pas encore de compte ? Créez-en un" : "Déjà un compte ? Connectez-vous"}
-      </button>
+        <h2 className="font-display text-2xl font-semibold text-cocoa-900">{titles[mode][0]}</h2>
+        <p className="mt-2 text-sm text-cocoa-500">{titles[mode][1]}</p>
+
+        {error && (
+          <p className="mt-5 border-l-2 border-cognac-600 bg-cognac-500/10 px-4 py-3 text-sm text-cognac-700" role="alert">
+            {error}
+          </p>
+        )}
+        {notice && (
+          <p className="mt-5 border-l-2 border-[#5f7a52] bg-[#5f7a52]/10 px-4 py-3 text-sm text-[#4a6340]" role="status">
+            {notice}
+          </p>
+        )}
+
+        <div className="mt-6 space-y-4">
+          {mode === "register" && (
+            <>
+              <div>
+                <label className="label">Nom complet</label>
+                <input className="field" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="ex : Awa Ndiaye" />
+              </div>
+              <div>
+                <label className="label">Numéro de téléphone</label>
+                <input className="field" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" placeholder="77 000 00 00" />
+              </div>
+              <div>
+                <label className="label">Email (pour retrouver votre mot de passe)</label>
+                <input className="field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="vous@exemple.com" />
+              </div>
+            </>
+          )}
+
+          {(mode === "login" || mode === "forgot") && (
+            <div>
+              <label className="label">Numéro de téléphone ou email</label>
+              <input
+                className="field"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                autoComplete="username"
+                placeholder="77 000 00 00 ou vous@exemple.com"
+              />
+            </div>
+          )}
+
+          {mode !== "forgot" && (
+            <PasswordField
+              label={mode === "login" ? "Mot de passe" : "Choisissez un mot de passe"}
+              value={password}
+              onChange={setPassword}
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
+            />
+          )}
+          {(mode === "register" || mode === "reset") && (
+            <>
+              <PasswordField label="Confirmez le mot de passe" value={confirm} onChange={setConfirm} autoComplete="new-password" />
+              <p className={`text-[12px] ${password && !passwordOk(password) ? "text-cognac-700" : "text-cocoa-500"}`}>{PASSWORD_RULE}</p>
+            </>
+          )}
+        </div>
+
+        <button type="submit" disabled={loading} className="btn-primary mt-6 w-full disabled:cursor-wait disabled:opacity-80">
+          {loading ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-sand-100/40 border-t-sand-100" /> : submitLabel[mode]}
+        </button>
+
+        <div className="mt-5 flex flex-wrap justify-between gap-3 text-[12.5px]">
+          {mode === "login" && (
+            <button type="button" onClick={() => go("forgot")} className="cursor-pointer text-cognac-600 underline-offset-4 hover:underline">
+              Mot de passe oublié ?
+            </button>
+          )}
+          {(mode === "forgot" || mode === "reset") && (
+            <button type="button" onClick={() => go("login")} className="cursor-pointer text-cognac-600 underline-offset-4 hover:underline">
+              Retour à la connexion
+            </button>
+          )}
+          <a href="https://wa.me/22675544742" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-cocoa-500 hover:text-cognac-600">
+            <IconWhatsApp size={14} /> Besoin d'aide ?
+          </a>
+        </div>
+      </form>
+
+      {mode === "register" && (
+        <ul className="mt-6 grid gap-2 text-[13px] text-cocoa-700">
+          {["Suivez chaque étape de la confection", "Vos coordonnées remplies à chaque commande", "Votre historique et vos mesures au même endroit"].map((t) => (
+            <li key={t} className="flex items-center gap-2.5">
+              <IconCheck size={14} className="text-cognac-600" /> {t}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
+  );
+}
+
+/** Fiche « Mon compte » : nom, email et adresse de livraison modifiables. */
+function ProfileCard() {
+  const [profile, setProfile] = useState<ApiCustomer | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({ name: "", email: "", shipping_address: "" });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCustomerProfile()
+      .then((p) => !cancelled && setProfile(p))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!profile) return null;
+
+  const start = () => {
+    setDraft({ name: profile.name ?? "", email: profile.email ?? "", shipping_address: profile.shipping_address ?? "" });
+    setMsg(null);
+    setEditing(true);
+  };
+  const save = async () => {
+    setSaving(true);
+    setMsg(null);
+    try {
+      const p = await updateCustomerProfile({
+        name: draft.name.trim(),
+        email: draft.email.trim(),
+        shipping_address: draft.shipping_address.trim(),
+      });
+      setProfile(p);
+      setEditing(false);
+      setMsg({ ok: true, text: "Vos informations sont enregistrées." });
+    } catch (e) {
+      setMsg({ ok: false, text: e instanceof ABMCYApiError ? e.message : "Enregistrement impossible, réessayez." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Reveal className="mt-10">
+      <div className="border border-sand-300/80 bg-gradient-to-br from-sand-50/95 to-sand-200/50 px-7 py-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="eyebrow">Mon compte</p>
+            <p className="font-display mt-1 text-2xl font-semibold text-cocoa-900">Bonjour {profile.name?.split(" ")[0] || ""}</p>
+          </div>
+          {!editing && (
+            <button onClick={start} className="btn-ghost !py-2.5 !text-[11px]">
+              Modifier mes informations
+            </button>
+          )}
+        </div>
+        {!editing ? (
+          <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="label !mb-1">Téléphone</dt>
+              <dd className="text-cocoa-800">{profile.phone}</dd>
+            </div>
+            <div>
+              <dt className="label !mb-1">Email</dt>
+              <dd className="break-all text-cocoa-800">{profile.email || <span className="text-cognac-700">À ajouter (pour le mot de passe oublié)</span>}</dd>
+            </div>
+            <div>
+              <dt className="label !mb-1">Adresse de livraison</dt>
+              <dd className="text-cocoa-800">{profile.shipping_address || "—"}</dd>
+            </div>
+          </dl>
+        ) : (
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="label">Nom complet</label>
+              <input className="field" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+            </div>
+            <div>
+              <label className="label">Email</label>
+              <input className="field" type="email" value={draft.email} onChange={(e) => setDraft({ ...draft, email: e.target.value })} />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label">Adresse de livraison</label>
+              <input className="field" value={draft.shipping_address} onChange={(e) => setDraft({ ...draft, shipping_address: e.target.value })} placeholder="Quartier, rue, ville" />
+            </div>
+            <div className="flex gap-3 sm:col-span-2">
+              <button onClick={save} disabled={saving} className="btn-primary !py-3 disabled:opacity-70">
+                {saving ? "Enregistrement…" : "Enregistrer"}
+              </button>
+              <button onClick={() => setEditing(false)} className="btn-ghost !py-3">
+                Annuler
+              </button>
+            </div>
+          </div>
+        )}
+        {msg && <p className={`mt-4 text-sm ${msg.ok ? "text-[#4a6340]" : "text-cognac-700"}`}>{msg.text}</p>}
+      </div>
+    </Reveal>
   );
 }
 
@@ -242,7 +523,7 @@ export default function EspaceClient() {
             </>,
           ]}
         />
-        <LoginForm onLoggedIn={() => setAuthed(true)} />
+        <AccountForm onLoggedIn={() => setAuthed(true)} />
       </div>
     );
   }
@@ -272,6 +553,8 @@ export default function EspaceClient() {
           confirmation est envoyée automatiquement par e-mail.
         </p>
       </Reveal>
+
+      <ProfileCard />
 
       {loading && (
         <div className="mt-16 text-center">

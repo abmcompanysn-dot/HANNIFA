@@ -245,55 +245,63 @@ export async function logoutPersonal(): Promise<void> {
 }
 
 /**
- * Inscription client final
+ * Création du compte client (téléphone + mot de passe, nom et email
+ * conseillés : l'email sert à recevoir un nouveau mot de passe).
+ * Les commandes déjà passées avec ce numéro rejoignent le compte.
  */
-export async function registerCustomer(phone: string, password: string): Promise<{ token: string }> {
+export async function registerCustomer(input: {
+  name: string;
+  phone: string;
+  email?: string;
+  password: string;
+}): Promise<{ token: string }> {
   return apiRequest('/auth/customer/register', {
     method: 'POST',
-    body: JSON.stringify({
-      tenant_slug: TENANT_SLUG,
-      phone,
-      password,
-    }),
+    body: JSON.stringify({ tenant_slug: TENANT_SLUG, ...input }),
   });
 }
 
 /**
- * Connexion client final
+ * Connexion client : numéro de téléphone OU email, et mot de passe.
  */
-export async function loginCustomer(phone: string, password: string): Promise<{ token: string }> {
+export async function loginCustomer(identifier: string, password: string): Promise<{ token: string }> {
   return apiRequest('/auth/customer/login', {
     method: 'POST',
     body: JSON.stringify({
       tenant_slug: TENANT_SLUG,
-      phone,
+      identifier,
+      phone: identifier, // ancien nom du champ, accepté aussi par l'API
       password,
     }),
   });
 }
 
 /**
- * Mot de passe oublié
+ * Mot de passe oublié : un lien est envoyé à l'email du compte (numéro ou
+ * email accepté). La réponse est la même que le compte existe ou non.
  */
-export async function forgotCustomerPassword(phone: string): Promise<void> {
+export async function forgotCustomerPassword(identifier: string): Promise<{ message: string }> {
   return apiRequest('/auth/customer/forgot-password', {
     method: 'POST',
     body: JSON.stringify({
       tenant_slug: TENANT_SLUG,
-      phone,
+      identifier,
+      phone: identifier.includes('@') ? undefined : identifier,
+      email: identifier.includes('@') ? identifier : undefined,
     }),
   });
 }
 
 /**
- * Réinitialisation mot de passe
+ * Nouveau mot de passe à partir du lien reçu par email (?reset_token=…).
  */
 export async function resetCustomerPassword(token: string, newPassword: string): Promise<void> {
   return apiRequest('/auth/customer/reset-password', {
     method: 'POST',
     body: JSON.stringify({
+      tenant_slug: TENANT_SLUG,
       token,
-      password: newPassword,
+      new_password: newPassword,
     }),
   });
 }

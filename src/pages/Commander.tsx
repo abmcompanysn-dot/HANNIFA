@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { fmtPrice } from "../data/catalog";
 import { useStore, type Customer } from "../context/StoreContext";
@@ -6,6 +6,8 @@ import {
   createOrder,
   createCustomOrder,
   payOrder,
+  getCustomerProfile,
+  isAuthenticated,
   ABMCYApiError,
   type Order as ApiOrder,
 } from "../services/abmcy";
@@ -26,6 +28,29 @@ export default function Commander() {
   // par lien ou en espèces) ou totalité en ligne.
   const [plan, setPlan] = useState<"deposit" | "full">("deposit");
   const [paymentDown, setPaymentDown] = useState(false);
+  // Cliente connectée : ses coordonnées du compte remplissent les champs
+  // encore vides (elle peut les modifier pour cette commande).
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    if (!isAuthenticated()) return;
+    let cancelled = false;
+    getCustomerProfile()
+      .then((p) => {
+        if (cancelled) return;
+        setSignedIn(true);
+        setForm((f) => ({
+          ...f,
+          name: f.name || p.name || "",
+          phone: f.phone || p.phone || "",
+          email: f.email || p.email || "",
+          address: f.address || p.shipping_address || "",
+        }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const deposit = Math.ceil(cartTotal / 2);
 
   /* ------- écran de confirmation ------- */
@@ -223,6 +248,17 @@ export default function Commander() {
               <h2 className="font-display flex items-baseline gap-4 text-3xl font-semibold text-cocoa-900">
                 <span className="font-display text-lg text-cognac-600 italic">01</span> Livraison
               </h2>
+              {signedIn ? (
+                <p className="mt-3 text-[13px] text-cocoa-500">Vos coordonnées viennent de votre compte. Modifiez-les si besoin pour cette commande.</p>
+              ) : (
+                <p className="mt-3 text-[13px] text-cocoa-500">
+                  Déjà cliente ?{" "}
+                  <Link to="/espace-client" className="text-cognac-600 underline-offset-4 hover:underline">
+                    Connectez-vous
+                  </Link>{" "}
+                  pour remplir ce formulaire en un clic et suivre votre commande.
+                </p>
+              )}
               <div className="mt-7 grid gap-5 sm:grid-cols-2">
                 <div>
                   <label className="label">Nom complet *</label>

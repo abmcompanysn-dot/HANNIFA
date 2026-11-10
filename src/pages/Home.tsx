@@ -58,13 +58,16 @@ export default function Home() {
 
   const news = products.filter((p) => p.isNew);
   const best = products.filter((p) => p.isBest).slice(0, 4);
+  // Toujours des modèles juste sous l'ouverture : les meilleures ventes,
+  // sinon les 8 premiers du catalogue.
+  const featured = best.length > 0 ? best : products.slice(0, 8);
   const teaser = gallery.slice(0, 3);
   const scrollRow = (dir: number) => rowRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
 
   return (
     <div>
       {/* ================= OUVERTURE ÉDITORIALE ================= */}
-      <section className="relative overflow-hidden">
+      <section className="hero-glow relative overflow-hidden">
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pt-12 pb-20 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:pt-16">
           <div className="relative z-10 lg:col-span-5">
             <p className="eyebrow flex items-center gap-3">
@@ -169,80 +172,100 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ================= LA MAISON ================= */}
-      <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-32">
-        <div className="grid gap-14 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
-            <div className="lg:sticky lg:top-28">
-              <Reveal>
-                <div className="arch-sm relative overflow-hidden border border-sand-300/80">
-                  <img
-                    src="/images/couture-main.jpg"
-                    alt="L'atelier HANI'S — couture à la main"
-                    className="h-[460px] w-full object-cover transition-transform duration-[1.6s] ease-out hover:scale-[1.05] lg:h-[540px]"
-                  />
+      {/* ================= MEILLEURES VENTES ================= */}
+      {featured.length > 0 && (
+        <section className="band-warm relative pt-20 pb-24 lg:pt-28 lg:pb-28">
+          <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+          <p className="eyebrow">{best.length > 0 ? "Les pièces que l'on s'arrache" : "La sélection de l'atelier"}</p>
+          <MaskLines
+            className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
+            lines={[
+              <>
+                {best.length > 0 ? <>Meilleures <em className="text-cognac-600">ventes</em></> : <>Nos <em className="text-cognac-600">modèles</em></>}
+              </>,
+            ]}
+          />
+          </div>
+          <Link
+            to="/boutique"
+            className="group inline-flex items-center gap-3 text-[12px] font-medium tracking-[0.22em] text-cocoa-700 uppercase transition-colors hover:text-cognac-600"
+          >
+            Voir les {products.length} modèles
+            <IconArrow size={16} className="transition-transform duration-300 group-hover:translate-x-1.5" />
+          </Link>
+          </div>
+          <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+            {featured.map((p, i) => (
+              <div key={p.id} className="relative">
+                <span
+                  aria-hidden
+                  className="font-display pointer-events-none absolute -top-12 -left-2 z-0 text-[110px] leading-none font-semibold text-sand-300/70 select-none"
+                >
+                  {i + 1}
+                </span>
+                <div className="relative z-[1]">
+                  <ProductCard product={p} delay={i * 90} />
                 </div>
-                <div className="relative z-10 -mt-10 ml-8 inline-block bg-cocoa-800 px-6 py-5 text-sand-100 shadow-[0_24px_60px_-24px_rgba(46,31,19,0.7)]">
-                  <p className="font-display text-4xl font-semibold text-cognac-300">8 ans</p>
-                  <p className="mt-1 text-[11px] tracking-[0.24em] uppercase">de savoir-faire transmis</p>
-                </div>
-              </Reveal>
+              </div>
+            ))}
+          </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================= NOUVEAUTÉS ================= */}
+      {news.length > 0 && (
+        <section className="pt-24 lg:pt-32">
+          <div className="mx-auto flex max-w-7xl items-end justify-between gap-6 px-5 lg:px-8">
+            <div>
+              <p className="eyebrow">Vient de sortir de l'atelier</p>
+              <MaskLines
+                className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
+                lines={[<>Nouveautés</>]}
+              />
+            </div>
+            <div className="hidden gap-2.5 sm:flex">
+              <button
+                onClick={() => scrollRow(-1)}
+                aria-label="Faire défiler vers la gauche"
+                className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
+              >
+                <IconChevron size={18} className="rotate-90" />
+              </button>
+              <button
+                onClick={() => scrollRow(1)}
+                aria-label="Faire défiler vers la droite"
+                className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
+              >
+                <IconChevron size={18} className="-rotate-90" />
+              </button>
             </div>
           </div>
-
-          <div className="lg:col-span-7 lg:pt-10">
-            <p className="eyebrow">La maison HANI&rsquo;S</p>
-            <MaskLines
-              className="font-display mt-4 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
-              lines={[
-                <>Le geste juste,</>,
-                <>
-                  pièce après <em className="text-cognac-600">pièce</em>.
-                </>,
-              ]}
-            />
-            <Reveal delay={200}>
-              <p className="mt-7 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
-                La maison HANI&rsquo;S marie les techniques de la haute couture aux tissus
-                d'exception — jazz, lin, coton, soie, mousseline et motifs bogolan. Émus et
-                inspirés par cet artisanat, nous mettons notre passion du bel habit et des
-                accessoires au service de votre style, entre élégance, modestie et authenticité.
-              </p>
-              <p className="mt-4 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
-                Chaque commande naît d'une véritable écoute : vos mesures, votre tissu, vos
-                envies. De la robe de cérémonie au grand boubou brodé, nous concevons des
-                vêtements décents, élégants et très bien taillés pour sublimer les femmes et
-                les hommes. Rien ne sort de l'atelier sans avoir été vérifié, repassé et
-                soigneusement ajusté à la main.
-              </p>
-            </Reveal>
-
-            <div className="mt-12 grid max-w-xl grid-cols-3 divide-x divide-sand-300/80 border-y border-sand-300/80">
-              {[
-                { n: "Des milliers", l: "de créations déjà livrées" },
-                { n: "Plusieurs", l: "artisans et ateliers partenaires" },
-                { n: "100 %", l: "confection sur mesure et fait main" },
-              ].map((s, i) => (
-                <Reveal key={s.l} delay={i * 120} className={`py-6 ${i > 0 ? "pl-5" : ""}`}>
-                  <p className="font-display text-3xl font-semibold text-cocoa-900">{s.n}</p>
-                  <p className="mt-1 text-[12px] tracking-wide text-cocoa-500">{s.l}</p>
-                </Reveal>
-              ))}
+          <div
+            ref={rowRef}
+            className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 lg:px-8"
+          >
+            {news.map((p, i) => (
+              <div key={p.id} className="w-[272px] shrink-0 snap-start sm:w-[300px]">
+                <ProductCard product={p} delay={i * 70} />
+              </div>
+            ))}
+            <div className="flex w-[240px] shrink-0 snap-start items-center justify-center">
+              <Link
+                to="/boutique"
+                className="group flex flex-col items-center gap-4 text-cocoa-700 transition-colors hover:text-cognac-600"
+              >
+                <span className="grid h-16 w-16 place-items-center rounded-full border border-cocoa-800/25 transition-all duration-300 group-hover:border-cognac-500 group-hover:bg-cognac-500 group-hover:text-sand-100">
+                  <IconArrow size={22} />
+                </span>
+                <span className="text-[11px] tracking-[0.26em] uppercase">Tout voir</span>
+              </Link>
             </div>
-
-            <Reveal delay={300}>
-              <p className="font-display mt-10 text-2xl text-cocoa-800 italic">
-                « Notre maison est née du regroupement d'artisans mus par une même passion :
-                l'amour du beau geste, des vêtements décents et des accessoires élégants,
-                conçus pour vous sublimer au quotidien comme lors de vos grands événements. »
-              </p>
-              <p className="mt-2 text-[12px] tracking-[0.24em] text-cocoa-500 uppercase">
-                — La maison HANI&rsquo;S
-              </p>
-            </Reveal>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ================= NOS COLLECTIONS ================= */}
       <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-32">
@@ -329,87 +352,80 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= NOUVEAUTÉS ================= */}
-      {news.length > 0 && (
-        <section className="pt-24 lg:pt-32">
-          <div className="mx-auto flex max-w-7xl items-end justify-between gap-6 px-5 lg:px-8">
-            <div>
-              <p className="eyebrow">Vient de sortir de l'atelier</p>
-              <MaskLines
-                className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
-                lines={[<>Nouveautés</>]}
-              />
-            </div>
-            <div className="hidden gap-2.5 sm:flex">
-              <button
-                onClick={() => scrollRow(-1)}
-                aria-label="Faire défiler vers la gauche"
-                className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
-              >
-                <IconChevron size={18} className="rotate-90" />
-              </button>
-              <button
-                onClick={() => scrollRow(1)}
-                aria-label="Faire défiler vers la droite"
-                className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border border-cocoa-800/25 text-cocoa-800 transition-all hover:bg-cocoa-800 hover:text-sand-100"
-              >
-                <IconChevron size={18} className="-rotate-90" />
-              </button>
-            </div>
-          </div>
-          <div
-            ref={rowRef}
-            className="no-scrollbar mt-10 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 lg:px-8"
-          >
-            {news.map((p, i) => (
-              <div key={p.id} className="w-[272px] shrink-0 snap-start sm:w-[300px]">
-                <ProductCard product={p} delay={i * 70} />
-              </div>
-            ))}
-            <div className="flex w-[240px] shrink-0 snap-start items-center justify-center">
-              <Link
-                to="/boutique"
-                className="group flex flex-col items-center gap-4 text-cocoa-700 transition-colors hover:text-cognac-600"
-              >
-                <span className="grid h-16 w-16 place-items-center rounded-full border border-cocoa-800/25 transition-all duration-300 group-hover:border-cognac-500 group-hover:bg-cognac-500 group-hover:text-sand-100">
-                  <IconArrow size={22} />
-                </span>
-                <span className="text-[11px] tracking-[0.26em] uppercase">Tout voir</span>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ================= MEILLEURES VENTES ================= */}
-      {best.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-28">
-          <p className="eyebrow">Les pièces que l'on s'arrache</p>
-          <MaskLines
-            className="font-display mt-3 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
-            lines={[
-              <>
-                Meilleures <em className="text-cognac-600">ventes</em>
-              </>,
-            ]}
-          />
-          <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-            {best.map((p, i) => (
-              <div key={p.id} className="relative">
-                <span
-                  aria-hidden
-                  className="font-display pointer-events-none absolute -top-12 -left-2 z-0 text-[110px] leading-none font-semibold text-sand-300/70 select-none"
-                >
-                  {i + 1}
-                </span>
-                <div className="relative z-[1]">
-                  <ProductCard product={p} delay={i * 90} />
+      {/* ================= LA MAISON ================= */}
+      <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-32">
+        <div className="grid gap-14 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5">
+            <div className="lg:sticky lg:top-28">
+              <Reveal>
+                <div className="arch-sm relative overflow-hidden border border-sand-300/80">
+                  <img
+                    src="/images/couture-main.jpg"
+                    alt="L'atelier HANI'S — couture à la main"
+                    className="h-[460px] w-full object-cover transition-transform duration-[1.6s] ease-out hover:scale-[1.05] lg:h-[540px]"
+                  />
                 </div>
-              </div>
-            ))}
+                <div className="relative z-10 -mt-10 ml-8 inline-block bg-cocoa-800 px-6 py-5 text-sand-100 shadow-[0_24px_60px_-24px_rgba(46,31,19,0.7)]">
+                  <p className="font-display text-4xl font-semibold text-cognac-300">8 ans</p>
+                  <p className="mt-1 text-[11px] tracking-[0.24em] uppercase">de savoir-faire transmis</p>
+                </div>
+              </Reveal>
+            </div>
           </div>
-        </section>
-      )}
+
+          <div className="lg:col-span-7 lg:pt-10">
+            <p className="eyebrow">La maison HANI&rsquo;S</p>
+            <MaskLines
+              className="font-display mt-4 text-5xl leading-[0.96] font-semibold text-cocoa-900 sm:text-6xl"
+              lines={[
+                <>Le geste juste,</>,
+                <>
+                  pièce après <em className="text-cognac-600">pièce</em>.
+                </>,
+              ]}
+            />
+            <Reveal delay={200}>
+              <p className="mt-7 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
+                La maison HANI&rsquo;S marie les techniques de la haute couture aux tissus
+                d'exception — jazz, lin, coton, soie, mousseline et motifs bogolan. Émus et
+                inspirés par cet artisanat, nous mettons notre passion du bel habit et des
+                accessoires au service de votre style, entre élégance, modestie et authenticité.
+              </p>
+              <p className="mt-4 max-w-xl text-[15.5px] leading-relaxed text-cocoa-700">
+                Chaque commande naît d'une véritable écoute : vos mesures, votre tissu, vos
+                envies. De la robe de cérémonie au grand boubou brodé, nous concevons des
+                vêtements décents, élégants et très bien taillés pour sublimer les femmes et
+                les hommes. Rien ne sort de l'atelier sans avoir été vérifié, repassé et
+                soigneusement ajusté à la main.
+              </p>
+            </Reveal>
+
+            <div className="mt-12 grid max-w-xl grid-cols-3 divide-x divide-sand-300/80 border-y border-sand-300/80">
+              {[
+                { n: "Des milliers", l: "de créations déjà livrées" },
+                { n: "Plusieurs", l: "artisans et ateliers partenaires" },
+                { n: "100 %", l: "confection sur mesure et fait main" },
+              ].map((s, i) => (
+                <Reveal key={s.l} delay={i * 120} className={`py-6 ${i > 0 ? "pl-5" : ""}`}>
+                  <p className="font-display text-3xl font-semibold text-cocoa-900">{s.n}</p>
+                  <p className="mt-1 text-[12px] tracking-wide text-cocoa-500">{s.l}</p>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal delay={300}>
+              <p className="font-display mt-10 text-2xl text-cocoa-800 italic">
+                « Notre maison est née du regroupement d'artisans mus par une même passion :
+                l'amour du beau geste, des vêtements décents et des accessoires élégants,
+                conçus pour vous sublimer au quotidien comme lors de vos grands événements. »
+              </p>
+              <p className="mt-2 text-[12px] tracking-[0.24em] text-cocoa-500 uppercase">
+                — La maison HANI&rsquo;S
+              </p>
+            </Reveal>
+          </div>
+        </div>
+      </section>
 
       {/* ================= DU FIL À VOTRE PORTE (animation au défilement) ================= */}
       <AtelierStory />

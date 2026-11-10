@@ -72,13 +72,33 @@ html {
 
 body {
   @apply bg-sand-100 text-cocoa-800 font-body antialiased;
-  background-image: radial-gradient(
-      ellipse 80% 60% at 85% -10%,
-      rgba(168, 116, 55, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(ellipse 60% 50% at -10% 30%, rgba(122, 92, 62, 0.07), transparent 60%);
+  /* Dégradé dans les couleurs de la maison : sable clair en haut, sable
+     doré en bas, avec des halos cognac (au lieu d'un fond uni). */
+  background-image:
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(211, 164, 101, 0.3), transparent 62%),
+    radial-gradient(ellipse 55% 40% at 0% 38%, rgba(168, 116, 55, 0.16), transparent 66%),
+    radial-gradient(ellipse 65% 45% at 100% 78%, rgba(122, 92, 62, 0.13), transparent 66%),
+    linear-gradient(180deg, #f9f4ea 0%, #f3ebdc 38%, #eddfc6 72%, #e6d4b6 100%);
   background-attachment: fixed;
+}
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll;
+  }
+}
+
+/* Ouverture : halo doré derrière le visuel principal */
+.hero-glow {
+  background:
+    radial-gradient(ellipse 55% 70% at 72% 45%, rgba(211, 164, 101, 0.34), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 10% 85%, rgba(249, 244, 234, 0.9), transparent 70%);
+}
+
+/* Bande de la sélection : sable doré qui se fond dans la page */
+.band-warm {
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 0%, rgba(211, 164, 101, 0.22), transparent 70%),
+    linear-gradient(180deg, rgba(249, 244, 234, 0) 0%, rgba(234, 220, 196, 0.75) 22%, rgba(221, 201, 166, 0.55) 78%, rgba(249, 244, 234, 0) 100%);
 }
 
 ::selection {

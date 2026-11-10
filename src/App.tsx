@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { HashRouter, Link, Route, Routes, useLocation } from "react-router-dom";
+import { HashRouter, Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { StoreProvider, useStore } from "./context/StoreContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -67,6 +67,19 @@ function WhatsAppFloat() {
   );
 }
 
+/** Lien « Choisir mon mot de passe » reçu par email : ?reset_token=… mène
+ * à l'espace client, qui affiche le formulaire du nouveau mot de passe. */
+function ResetLinkRedirect() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (pathname !== "/espace-client" && new URLSearchParams(window.location.search).has("reset_token")) {
+      navigate("/espace-client", { replace: true });
+    }
+  }, [pathname, navigate]);
+  return null;
+}
+
 function NotFound() {
   return (
     <div className="mx-auto max-w-2xl px-5 py-32 text-center">
@@ -85,6 +98,7 @@ export default function App() {
       <HashRouter>
         <ScrollToTop />
         <VisitTracker />
+        <ResetLinkRedirect />
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">
