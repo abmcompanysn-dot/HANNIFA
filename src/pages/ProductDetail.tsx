@@ -440,7 +440,7 @@ export default function ProductDetail() {
               <IconArrow size={15} className="transition-transform duration-300 group-hover:translate-x-1.5" />
             </Link>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-4">
             {similar.map((p, i) => (
               <ProductCard key={p.id} product={p} delay={i * 90} />
             ))}

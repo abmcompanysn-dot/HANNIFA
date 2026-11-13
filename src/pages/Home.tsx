@@ -74,7 +74,7 @@ export default function Home() {
               <IconSparkle size={12} /> Maison de couture — Dakar
             </p>
             <MaskLines
-              className="font-display mt-6 text-[56px] leading-[0.92] font-semibold text-cocoa-900 sm:text-[76px] lg:text-[68px] xl:text-[80px]"
+              className="font-display mt-6 text-[58px] leading-[0.92] font-medium text-cocoa-900 sm:text-[80px] lg:text-[72px] xl:text-[88px]"
               lines={[
                 <>L&rsquo;élégance,</>,
                 <>
@@ -82,8 +82,21 @@ export default function Home() {
                 </>,
               ]}
             />
+            {/* le fil : un point de couture qui se coud sous le titre */}
+            <div aria-hidden className="hero-thread mt-6 flex items-center gap-2 text-cognac-500">
+              <svg width="210" height="14" viewBox="0 0 210 14" fill="none">
+                <path
+                  d="M2 9 C 34 1, 62 13, 96 7 S 160 2, 208 8"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeDasharray="7 6"
+                />
+              </svg>
+              <IconNeedle size={18} />
+            </div>
             <Reveal delay={350}>
-              <p className="mt-7 max-w-md text-[15.5px] leading-relaxed text-cocoa-700">
+              <p className="mt-6 max-w-md text-[15.5px] leading-relaxed text-cocoa-700">
                 HANI&rsquo;S habille les femmes et les hommes qui aiment les belles choses :
                 collections raffinées, créations sur mesure à vos mesures exactes, et tissus
                 choisis par vous — de la première coupe au dernier point.
@@ -196,19 +209,9 @@ export default function Home() {
             <IconArrow size={16} className="transition-transform duration-300 group-hover:translate-x-1.5" />
           </Link>
           </div>
-          <div className="mt-14 grid grid-cols-1 gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-4">
             {featured.map((p, i) => (
-              <div key={p.id} className="relative">
-                <span
-                  aria-hidden
-                  className="font-display pointer-events-none absolute -top-12 -left-2 z-0 text-[110px] leading-none font-semibold text-sand-300/70 select-none"
-                >
-                  {i + 1}
-                </span>
-                <div className="relative z-[1]">
-                  <ProductCard product={p} delay={i * 90} />
-                </div>
-              </div>
+              <ProductCard key={p.id} product={p} delay={(i % 4) * 90} />
             ))}
           </div>
           </div>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { HashRouter, Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { StoreProvider, useStore } from "./context/StoreContext";
 import Header from "./components/Header";
@@ -80,6 +80,17 @@ function ResetLinkRedirect() {
   return null;
 }
 
+/** Chaque page arrive en fondu. La clé est le premier segment de
+ * l'adresse : passer de Femme à Homme dans la boutique ne recharge rien. */
+function PageFade({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  return (
+    <div key={pathname.split("/")[1] || "home"} className="page-in">
+      {children}
+    </div>
+  );
+}
+
 function NotFound() {
   return (
     <div className="mx-auto max-w-2xl px-5 py-32 text-center">
@@ -102,6 +113,7 @@ export default function App() {
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">
+            <PageFade>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/boutique" element={<Boutique />} />
@@ -114,6 +126,7 @@ export default function App() {
               <Route path="/espace-client" element={<EspaceClient />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </PageFade>
           </main>
           <Footer />
         </div>

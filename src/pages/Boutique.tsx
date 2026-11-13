@@ -152,7 +152,7 @@ export default function Boutique() {
       {/* grille produits */}
       {!loading && !error && (
         list.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-12 pt-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-12 pt-12 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
             {list.map((p, i) => (
               <ProductCard key={p.id} product={p} delay={(i % 4) * 90} />
             ))}

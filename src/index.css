@@ -70,6 +70,21 @@ html {
   scroll-behavior: smooth;
 }
 
+@layer base {
+  h1,
+  h2,
+  h3,
+  .font-display {
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+    font-kerning: normal;
+    font-feature-settings: "kern", "liga";
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
 body {
   @apply bg-sand-100 text-cocoa-800 font-body antialiased;
   /* Dégradé dans les couleurs de la maison : sable clair en haut, sable
@@ -289,13 +304,174 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex cursor-pointer items-center justify-center gap-3 bg-cocoa-800 px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-sand-100 transition-all duration-300 hover:bg-cognac-600 hover:tracking-[0.3em] active:scale-[0.97];
+  @apply inline-flex cursor-pointer items-center justify-center gap-3 bg-cocoa-800 px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-sand-100 transition-all duration-300 hover:bg-cognac-600 active:scale-[0.97];
 }
 .btn-ghost {
   @apply inline-flex cursor-pointer items-center justify-center gap-3 border border-cocoa-800/30 bg-transparent px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-800 transition-all duration-300 hover:border-cocoa-800 hover:bg-cocoa-800 hover:text-sand-100 active:scale-[0.97];
 }
 .btn-light {
   @apply inline-flex cursor-pointer items-center justify-center gap-3 bg-sand-100 px-8 py-4 text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-900 transition-all duration-300 hover:bg-cognac-300 active:scale-[0.97];
+}
+
+/* reflet qui traverse le bouton au survol, flèche qui avance */
+.btn-primary,
+.btn-light {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after,
+.btn-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(249, 244, 234, 0.28) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+.btn-primary:hover::after,
+.btn-light:hover::after {
+  transform: translateX(120%);
+}
+.btn-primary > svg:last-child,
+.btn-ghost > svg:last-child,
+.btn-light > svg:last-child {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-primary:hover > svg:last-child,
+.btn-ghost:hover > svg:last-child,
+.btn-light:hover > svg:last-child {
+  transform: translateX(5px);
+}
+
+/* ---------- point de couture : la ligne signature de la maison ---------- */
+.stitch-line {
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--color-cognac-500) 0 7px, transparent 7px 13px);
+}
+
+/* ---------- en-tête ---------- */
+@keyframes header-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.header-in {
+  animation: header-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.55em) rotate(7deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.brand-letter {
+  display: inline-block;
+  animation: letter-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i) * 75ms + 200ms);
+}
+@keyframes soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.brand-tag {
+  animation: soft-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+}
+.announce-in {
+  animation: soft-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ---------- changement de page ---------- */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.page-in {
+  animation: page-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ---------- ouverture : le fil qui se coud sous le titre ---------- */
+@keyframes thread-sew {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.hero-thread {
+  animation: thread-sew 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.9s both;
+}
+
+/* ---------- cadre des modèles : arche, passe-partout cousu ---------- */
+.frame {
+  position: relative;
+  padding: 9px;
+  border-radius: 999px 999px 14px 14px;
+  background: linear-gradient(165deg, rgba(249, 244, 234, 0.96), rgba(234, 220, 196, 0.72));
+  box-shadow:
+    0 0 0 1px rgba(201, 174, 126, 0.55),
+    0 22px 44px -30px rgba(60, 42, 27, 0.55);
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* le point de couture court au milieu du passe-partout */
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: inherit;
+  border: 1px dashed rgba(168, 116, 55, 0.5);
+  pointer-events: none;
+  transition: border-color 0.5s ease;
+}
+.frame-in {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px 999px 8px 8px;
+  background: var(--color-sand-200);
+}
+@media (hover: hover) {
+  .group:hover > .frame {
+    transform: translateY(-7px);
+    box-shadow:
+      0 0 0 1px rgba(168, 116, 55, 0.8),
+      0 34px 54px -28px rgba(60, 42, 27, 0.6);
+  }
+  .group:hover > .frame::before {
+    border-color: rgba(143, 95, 40, 0.95);
+  }
+}
+/* la photo se dévoile de bas en haut, comme un tissu qu'on déroule */
+.reveal .curtain {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.15s cubic-bezier(0.65, 0, 0.35, 1);
+  transition-delay: var(--rv-delay, 0ms);
+}
+.reveal.is-in .curtain {
+  clip-path: inset(0 0 0 0);
 }
 
 .field {
@@ -370,6 +546,9 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .reveal .curtain {
+    clip-path: none !important;
   }
   .reveal,
   .mask-line > span,

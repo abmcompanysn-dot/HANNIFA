@@ -4,30 +4,58 @@ import { useStore } from "../context/StoreContext";
 import { IconBag, IconClose, IconMenu, IconSparkle, IconUser, IconWhatsApp } from "./Icons";
 import { SOCIALS } from "../data/catalog";
 
-export function Logo({ light = false }: { light?: boolean }) {
+/** La marque : l'emblème de la maison, son nom en capitales espacées et
+ * sa devise (« Élégance & modestie », celle de son logo). `animated` fait
+ * monter les lettres une à une au chargement (en-tête seulement). */
+export function Logo({
+  light = false,
+  compact = false,
+  animated = false,
+}: {
+  light?: boolean;
+  compact?: boolean;
+  animated?: boolean;
+}) {
   return (
-    <Link to="/" className="group inline-flex items-center gap-3" aria-label="HANI'S — accueil">
+    <Link to="/" className="group inline-flex items-center gap-3.5" aria-label="HANI'S — accueil">
       <span
-        className={`grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full ring-1 transition-colors duration-300 ${
-          light ? "ring-sand-100/30" : "ring-cocoa-800/15"
-        }`}
+        className={`relative grid shrink-0 place-items-center overflow-hidden rounded-full ring-1 ring-offset-2 transition-all duration-500 group-hover:ring-cognac-500 ${
+          compact ? "h-10 w-10" : "h-12 w-12 lg:h-[54px] lg:w-[54px]"
+        } ${light ? "ring-sand-100/30 ring-offset-cocoa-950" : "ring-cognac-500/45 ring-offset-sand-100"}`}
       >
-        <img src="/logo-hanis.jpg" alt="" className="h-full w-full object-cover" />
+        <img
+          src="/logo-hanis.jpg"
+          alt=""
+          className="h-full w-full scale-[1.35] object-cover transition-transform duration-700 group-hover:scale-[1.5]"
+        />
       </span>
       <span className="leading-none">
         <span
-          className={`font-display block text-[25px] font-semibold tracking-[0.2em] ${
-            light ? "text-sand-100" : "text-cocoa-900"
-          }`}
+          aria-hidden
+          className={`font-display block font-semibold tracking-[0.3em] transition-all duration-500 ${
+            compact ? "text-[24px]" : "text-[27px] lg:text-[32px]"
+          } ${light ? "text-sand-100" : "text-cocoa-900"}`}
         >
-          HANI&rsquo;S
+          {"HANI\u2019S".split("").map((ch, i) => (
+            <span
+              key={i}
+              className={animated ? "brand-letter" : "inline-block"}
+              style={{ ["--i" as string]: i }}
+            >
+              {ch}
+            </span>
+          ))}
         </span>
-        <span
-          className={`mt-1 block text-[8.5px] font-medium uppercase tracking-[0.44em] ${
-            light ? "text-sand-300" : "text-cocoa-500"
-          }`}
-        >
-          Maison de couture
+        <span className={`mt-1.5 flex items-center gap-2 ${animated ? "brand-tag" : ""}`}>
+          <span className="stitch-line w-4 shrink-0 opacity-70" />
+          <span
+            className={`font-display text-[13px] tracking-[0.06em] whitespace-nowrap italic ${
+              light ? "text-sand-300" : "text-cognac-600"
+            }`}
+          >
+            Élégance &amp; modestie
+          </span>
+          <span className="stitch-line w-4 shrink-0 opacity-70" />
         </span>
       </span>
     </Link>
@@ -42,11 +70,38 @@ const NAV = [
   { to: "/sur-mesure", label: "Sur mesure" },
   { to: "/galerie", label: "Galerie" },
 ];
+// Sur ordinateur, la marque est au centre (elle ramène à l'accueil) et le
+// menu se partage de part et d'autre.
+const NAV_LEFT = NAV.slice(1, 4);
+const NAV_RIGHT = NAV.slice(4);
+
+const ANNOUNCES = [
+  { long: "Confection sur mesure en 5 jours · Livraison partout au Sénégal", short: "Sur mesure · Confection 5 jours" },
+  { long: "Acompte de 50 % à la commande · Solde à la livraison", short: "Acompte 50 % · Solde à la livraison" },
+  { long: "Paiement Wave · Orange Money · Free Money", short: "Wave · Orange Money · Free Money" },
+];
+
+function DeskLink({ to, label }: { to: string; label: string }) {
+  return (
+    <NavLink
+      to={to}
+      end
+      className={({ isActive }) =>
+        `relative py-1.5 text-[12px] font-medium uppercase tracking-[0.2em] transition-colors duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-cognac-500 after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-cognac-600 hover:after:scale-x-100 ${
+          isActive ? "text-cognac-600 after:scale-x-100" : "text-cocoa-700"
+        }`
+      }
+    >
+      {label}
+    </NavLink>
+  );
+}
 
 export default function Header() {
   const { cartCount, setCartOpen } = useStore();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [announce, setAnnounce] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
@@ -65,44 +120,52 @@ export default function Header() {
     };
   }, [menuOpen]);
 
+  // Le bandeau fait tourner trois messages (fixe si l'utilisateur a
+  // demandé moins d'animations).
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setAnnounce((n) => (n + 1) % ANNOUNCES.length), 4500);
+    return () => window.clearInterval(id);
+  }, []);
+
   return (
     <>
       {/* bandeau annonce */}
-      <div className="relative z-[60] flex items-center justify-center gap-2 bg-cocoa-900 px-4 py-2 text-center text-[11px] uppercase tracking-[0.22em] text-sand-200">
+      <div className="relative z-[60] flex items-center justify-center gap-2.5 bg-cocoa-900 px-4 py-2 text-center text-[11px] uppercase tracking-[0.22em] text-sand-200">
         <IconSparkle size={11} className="shrink-0 text-cognac-300" />
-        <span className="hidden sm:inline">Confection sur mesure en 5 jours · Livraison partout au Sénégal</span>
-        <span className="sm:hidden">Sur mesure · Confection 5 jours</span>
+        <span key={announce} className="announce-in">
+          <span className="hidden sm:inline">{ANNOUNCES[announce].long}</span>
+          <span className="sm:hidden">{ANNOUNCES[announce].short}</span>
+        </span>
         <IconSparkle size={11} className="shrink-0 text-cognac-300" />
       </div>
 
       <header
-        className={`sticky top-0 z-[55] border-b transition-all duration-500 ${
+        className={`header-in sticky top-0 z-[55] transition-[background-color,box-shadow] duration-500 ${
           scrolled
-            ? "border-sand-300/80 bg-sand-100/95 shadow-[0_10px_40px_-18px_rgba(60,42,27,0.35)] backdrop-blur-md"
-            : "border-transparent bg-sand-100/60 backdrop-blur-sm"
+            ? "bg-sand-100/92 shadow-[0_14px_44px_-20px_rgba(60,42,27,0.4)] backdrop-blur-md"
+            : "bg-sand-50/55 backdrop-blur-sm"
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 lg:px-8">
-          <Logo />
-
-          <nav className="hidden items-center gap-7 lg:flex">
-            {NAV.map((n) => (
-              <NavLink
-                key={n.to}
-                to={n.to}
-                end={n.to === "/"}
-                className={({ isActive }) =>
-                  `relative py-1 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-cognac-500 after:transition-transform after:duration-300 hover:text-cognac-600 hover:after:scale-x-100 ${
-                    isActive ? "text-cognac-600 after:scale-x-100" : "text-cocoa-700"
-                  }`
-                }
-              >
-                {n.label}
-              </NavLink>
+        <div
+          className={`mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-5 transition-[padding] duration-500 lg:grid-cols-[1fr_auto_1fr] lg:px-8 ${
+            scrolled ? "py-2.5" : "py-3.5 lg:py-5"
+          }`}
+        >
+          <nav className="hidden items-center gap-8 lg:flex" aria-label="Boutique">
+            {NAV_LEFT.map((n) => (
+              <DeskLink key={n.to} {...n} />
             ))}
           </nav>
 
-          <div className="flex items-center gap-1.5">
+          <Logo compact={scrolled} animated />
+
+          <div className="flex items-center justify-end gap-1.5">
+            <nav className="mr-5 hidden items-center gap-8 lg:flex" aria-label="La maison">
+              {NAV_RIGHT.map((n) => (
+                <DeskLink key={n.to} {...n} />
+              ))}
+            </nav>
             <Link
               to="/espace-client"
               aria-label="Espace client"
@@ -117,7 +180,10 @@ export default function Header() {
             >
               <IconBag />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-cognac-500 px-1 text-[10px] font-semibold text-sand-50">
+                <span
+                  key={cartCount}
+                  className="announce-in absolute -top-0.5 -right-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-cognac-500 px-1 text-[10px] font-semibold text-sand-50"
+                >
                   {cartCount}
                 </span>
               )}
@@ -131,6 +197,8 @@ export default function Header() {
             </button>
           </div>
         </div>
+        {/* bord cousu */}
+        <div aria-hidden className={`stitch-line transition-opacity duration-500 ${scrolled ? "opacity-70" : "opacity-40"}`} />
       </header>
 
       {/* menu mobile */}
