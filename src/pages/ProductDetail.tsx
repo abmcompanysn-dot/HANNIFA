@@ -485,7 +485,7 @@ export default function ProductDetail() {
 
       {/* téléphone : le bouton reste sous le pouce quand celui de la fiche n'est plus à l'écran */}
       <div
-        className={`fixed right-[88px] bottom-6 left-3 z-[74] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden ${
+        className={`fixed right-3 bottom-[92px] left-3 z-[74] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden ${
           stickyCta ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-24 opacity-0"
         }`}
       >

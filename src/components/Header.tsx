@@ -136,17 +136,21 @@ export default function Header() {
         <IconSparkle size={11} className="shrink-0 text-cognac-300" />
       </div>
 
-      {/* capsule flottante */}
-      <header className="header-in pointer-events-none sticky top-0 z-[55] px-3 pt-3 sm:px-5">
+      {/* capsule flottante : repliée, elle se décolle du haut et descend se
+          poser en bas de l'écran, sous le pouce */}
+      <header
+        className="header-in header-move pointer-events-none sticky top-0 z-[76] px-3 pt-3 sm:px-5"
+        style={{ translate: retracted ? "0 calc(100dvh - 100% - 14px)" : "0 0" }}
+      >
         <div
-          className={`capsule pointer-events-auto mx-auto flex items-center justify-between gap-2 rounded-full border backdrop-blur-md ${
-            retracted ? "py-1.5 pr-1.5 pl-2" : "py-2 pr-2.5 pl-3 lg:pr-3 lg:pl-4"
+          className={`capsule pointer-events-auto flex items-center justify-between gap-2 rounded-full border backdrop-blur-md ${
+            retracted ? "mr-auto py-1.5 pr-1.5 pl-2 lg:mx-auto" : "mx-auto py-2 pr-2.5 pl-3 lg:pr-3 lg:pl-4"
           } ${
             scrolled
               ? "border-cognac-500/30 bg-sand-50/90 shadow-[0_18px_50px_-22px_rgba(60,42,27,0.55)]"
               : "border-sand-300/70 bg-sand-50/65 shadow-[0_10px_34px_-24px_rgba(60,42,27,0.45)]"
           }`}
-          style={{ maxWidth: retracted ? 292 : 1216 }}
+          style={{ maxWidth: retracted ? 268 : 1216 }}
         >
           <Logo compact={retracted} animated />
 

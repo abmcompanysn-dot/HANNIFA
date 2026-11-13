@@ -13,14 +13,13 @@ export default function PageArches({
   return (
     <div aria-hidden className="flex items-end gap-3.5 lg:gap-4">
       {shown.map((im, i) => (
-        <Reveal key={`${im.src}-${i}`} delay={150 + i * 130} className={i === 1 ? "-translate-y-5" : ""}>
+        <Reveal early key={`${im.src}-${i}`} delay={150 + i * 130} className={i === 1 ? "-translate-y-5" : ""}>
           <div className="frame animate-float" style={{ padding: 6, animationDelay: `${i * -2.3}s` }}>
-            <div className="frame-in curtain">
+            <div className="frame-in">
               <img
                 src={im.src}
                 alt=""
-                loading="lazy"
-                className="h-[140px] w-[98px] object-cover object-top lg:h-[172px] lg:w-[120px]"
+                                className="h-[140px] w-[98px] object-cover object-top lg:h-[172px] lg:w-[120px]"
                 style={{ objectPosition: im.pos }}
               />
             </div>

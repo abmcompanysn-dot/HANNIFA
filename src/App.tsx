@@ -39,7 +39,7 @@ function VisitTracker() {
 function Toasts() {
   const { toasts } = useStore();
   return (
-    <div className="pointer-events-none fixed bottom-6 left-5 z-[95] flex flex-col gap-3">
+    <div className="pointer-events-none fixed bottom-24 left-5 z-[95] flex flex-col gap-3">
       {toasts.map((t) => (
         <p
           key={t.id}

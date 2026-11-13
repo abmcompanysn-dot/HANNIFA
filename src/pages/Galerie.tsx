@@ -148,7 +148,7 @@ export default function Galerie() {
           ) : (
             <div className="columns-1 gap-6 sm:columns-2 lg:columns-3 [&>*]:break-inside-avoid">
               {filtered.map((g, i) => (
-                <Reveal key={g.id} delay={(i % 3) * 100} className="mb-6">
+                <Reveal early key={g.id} delay={(i % 3) * 100} className="mb-6">
                   <button
                     onClick={() => setLightbox(i)}
                     className="group relative block w-full cursor-zoom-in overflow-hidden rounded-[8px] border border-sand-300/70 text-left"

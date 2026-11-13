@@ -364,6 +364,9 @@ body {
 }
 
 /* ---------- en-tête flottant : une capsule qui se rétracte ---------- */
+.header-move {
+  transition: translate 0.95s cubic-bezier(0.65, 0, 0.35, 1);
+}
 .capsule {
   transition:
     max-width 0.75s cubic-bezier(0.22, 1, 0.36, 1),
@@ -507,16 +510,6 @@ body {
     border-color: rgba(143, 95, 40, 0.95);
   }
 }
-/* la photo se dévoile de bas en haut, comme un tissu qu'on déroule */
-.reveal .curtain {
-  clip-path: inset(100% 0 0 0);
-  transition: clip-path 1.15s cubic-bezier(0.65, 0, 0.35, 1);
-  transition-delay: var(--rv-delay, 0ms);
-}
-.reveal.is-in .curtain {
-  clip-path: inset(0 0 0 0);
-}
-
 .field {
   @apply w-full rounded-2xl border border-sand-300 bg-sand-50/80 px-4 py-3 text-[15px] text-cocoa-900 transition outline-none placeholder:text-cocoa-500/45 focus:border-cognac-500 focus:ring-2 focus:ring-cognac-500/20;
 }
@@ -589,9 +582,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-  .reveal .curtain {
-    clip-path: none !important;
   }
   .reveal,
   .mask-line > span,

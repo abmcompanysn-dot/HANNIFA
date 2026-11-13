@@ -295,7 +295,7 @@ export default function Home() {
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-12">
-          <Reveal className="lg:col-span-7">
+          <Reveal early className="lg:col-span-7">
             <Link to="/boutique/femme" className="arch-sm group relative block h-[440px] overflow-hidden sm:h-[540px]">
               <Parallax strength={30} className="absolute -inset-y-10 inset-x-0">
                 <img
@@ -324,7 +324,7 @@ export default function Home() {
             </Link>
           </Reveal>
 
-          <Reveal delay={150} className="lg:col-span-5">
+          <Reveal early delay={150} className="lg:col-span-5">
             <Link to="/boutique/homme" className="arch-sm group relative block h-[440px] overflow-hidden sm:h-[540px]">
               <Parallax strength={30} className="absolute -inset-y-10 inset-x-0">
                 <img
@@ -540,7 +540,7 @@ export default function Home() {
 
           <div className="mt-12 grid gap-6 sm:grid-cols-3">
             {teaser.map((g, i) => (
-              <Reveal key={g.id} delay={i * 130} className={i === 1 ? "sm:translate-y-10" : ""}>
+              <Reveal early key={g.id} delay={i * 130} className={i === 1 ? "sm:translate-y-10" : ""}>
                 <Link to="/galerie" className="group relative block overflow-hidden rounded-[8px]">
                   <img
                     src={g.image_url}

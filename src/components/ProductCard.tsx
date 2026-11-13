@@ -30,9 +30,9 @@ export default function ProductCard({
     });
 
   return (
-    <Reveal delay={delay} className="group relative flex h-full flex-col">
+    <Reveal early delay={delay} className="group relative flex h-full flex-col">
       <div className="frame">
-      <div className="frame-in curtain">
+      <div className="frame-in">
         <Link to={`/produit/${product.id}`} className="block aspect-[3/4] overflow-hidden">
           <img
             src={product.image}
