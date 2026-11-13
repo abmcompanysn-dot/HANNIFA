@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import PageArches from "../components/PageArches";
 import { listGallery, ABMCYApiError, type GalleryItem } from "../services/abmcy";
 import { MaskLines, Reveal } from "../components/Reveal";
 import { IconArrow, IconClose, IconSparkle } from "../components/Icons";
@@ -102,7 +103,8 @@ export default function Galerie() {
             ]}
           />
         </div>
-        <Reveal delay={200} className="shrink-0">
+        <PageArches images={items.map((g) => ({ src: g.src }))} />
+        <Reveal delay={200} className="shrink-0 lg:max-w-[240px]">
           <p className="flex items-center gap-3 text-sm text-cocoa-500">
             <IconSparkle size={14} className="text-cognac-600" />
             {items.length} création{items.length > 1 ? "s" : ""} photographiée{items.length > 1 ? "s" : ""} — mise à jour chaque semaine

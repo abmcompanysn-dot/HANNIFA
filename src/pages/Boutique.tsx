@@ -5,6 +5,7 @@ import type { Product as UiProduct } from "../data/catalog";
 import { listProducts, ABMCYApiError } from "../services/abmcy";
 import { mapProducts } from "../lib/mapProduct";
 import ProductCard from "../components/ProductCard";
+import PageArches from "../components/PageArches";
 import { MaskLines, Reveal } from "../components/Reveal";
 import { IconArrow, IconNeedle } from "../components/Icons";
 
@@ -80,8 +81,9 @@ export default function Boutique() {
             ]}
           />
         </div>
+        <PageArches images={base.map((p) => ({ src: p.image, pos: p.objectPos }))} />
         <Reveal delay={200} className="shrink-0">
-          <p className="max-w-xs text-sm leading-relaxed text-cocoa-500">
+          <p className="max-w-xs text-sm lg:max-w-[240px] leading-relaxed text-cocoa-500">
             <span className="font-display text-3xl font-semibold text-cocoa-800">{list.length}</span>{" "}
             {list.length > 1 ? "modèles disponibles" : "modèle disponible"} — chaque pièce peut être
             déclinée dans vos mesures.
