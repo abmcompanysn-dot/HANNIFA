@@ -143,7 +143,7 @@ export default function Footer() {
               Les nouveautés en avant-première
             </p>
             {subscribed ? (
-              <p className="flex items-center gap-2 bg-cocoa-800 px-4 py-3 text-sm text-cognac-300">
+              <p className="rounded-3xl flex items-center gap-2 bg-cocoa-800 px-4 py-3 text-sm text-cognac-300">
                 <IconCheck size={16} /> Merci, vous êtes sur la liste !
               </p>
             ) : (
@@ -154,7 +154,7 @@ export default function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Votre adresse e-mail"
-                  className="w-full min-w-0 border border-sand-100/20 bg-cocoa-800 px-4 py-3 text-sm text-sand-100 outline-none placeholder:text-sand-300/50 focus:border-cognac-300"
+                  className="rounded-3xl w-full min-w-0 border border-sand-100/20 bg-cocoa-800 px-4 py-3 text-sm text-sand-100 outline-none placeholder:text-sand-300/50 focus:border-cognac-300"
                 />
                 <button
                   type="submit"

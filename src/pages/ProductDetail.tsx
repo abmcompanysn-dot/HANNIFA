@@ -67,7 +67,7 @@ function ProductStage({
         />
         <img src={product.image} alt="" aria-hidden className="fx-half fx-b" style={imgStyle} />
         {product.isNew && (
-          <span className="absolute top-6 left-1/2 z-[1] -translate-x-1/2 bg-cognac-500 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-sand-50">
+          <span className="rounded-full absolute top-6 left-1/2 z-[1] -translate-x-1/2 bg-cognac-500 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-sand-50">
             Nouveauté
           </span>
         )}
@@ -412,7 +412,7 @@ export default function ProductDetail() {
               { icon: <IconNeedle size={20} />, t: "Cousu main", s: "Atelier Dakar" },
               { icon: <IconPhone size={20} />, t: "Conseil WhatsApp", s: "7 j / 7" },
             ].map((g) => (
-              <div key={g.t} className="border border-sand-300/70 bg-sand-50/50 px-3 py-4">
+              <div key={g.t} className="rounded-3xl border border-sand-300/70 bg-sand-50/50 px-3 py-4">
                 <span className="mx-auto grid place-items-center text-cognac-600">{g.icon}</span>
                 <p className="mt-2 text-[12px] font-semibold text-cocoa-800">{g.t}</p>
                 <p className="text-[11px] text-cocoa-500">{g.s}</p>

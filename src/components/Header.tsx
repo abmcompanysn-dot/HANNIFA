@@ -5,8 +5,8 @@ import { IconBag, IconClose, IconMenu, IconSparkle, IconUser, IconWhatsApp } fro
 import { SOCIALS } from "../data/catalog";
 
 /** La marque : l'emblème de la maison, son nom en capitales espacées et
- * sa devise (« Élégance & modestie », celle de son logo). `animated` fait
- * monter les lettres une à une au chargement (en-tête seulement). */
+ * sa devise (« Élégance & modestie », celle de son logo). `compact` replie
+ * la devise ; `animated` fait monter les lettres une à une au chargement. */
 export function Logo({
   light = false,
   compact = false,
@@ -17,11 +17,11 @@ export function Logo({
   animated?: boolean;
 }) {
   return (
-    <Link to="/" className="group inline-flex items-center gap-3.5" aria-label="HANI'S — accueil">
+    <Link to="/" className="group inline-flex shrink-0 items-center gap-3" aria-label="HANI'S — accueil">
       <span
-        className={`relative grid shrink-0 place-items-center overflow-hidden rounded-full ring-1 ring-offset-2 transition-all duration-500 group-hover:ring-cognac-500 ${
-          compact ? "h-10 w-10" : "h-12 w-12 lg:h-[54px] lg:w-[54px]"
-        } ${light ? "ring-sand-100/30 ring-offset-cocoa-950" : "ring-cognac-500/45 ring-offset-sand-100"}`}
+        className={`relative grid shrink-0 place-items-center overflow-hidden rounded-full ring-1 transition-all duration-700 group-hover:ring-cognac-500 ${
+          compact ? "h-9 w-9" : "h-11 w-11"
+        } ${light ? "ring-sand-100/30" : "ring-cognac-500/45"}`}
       >
         <img
           src="/logo-hanis.jpg"
@@ -32,30 +32,27 @@ export function Logo({
       <span className="leading-none">
         <span
           aria-hidden
-          className={`font-display block font-semibold tracking-[0.3em] transition-all duration-500 ${
-            compact ? "text-[24px]" : "text-[27px] lg:text-[32px]"
+          className={`font-display block font-semibold tracking-[0.26em] whitespace-nowrap transition-all duration-700 ${
+            compact ? "text-[21px]" : "text-[24px]"
           } ${light ? "text-sand-100" : "text-cocoa-900"}`}
         >
           {"HANI\u2019S".split("").map((ch, i) => (
-            <span
-              key={i}
-              className={animated ? "brand-letter" : "inline-block"}
-              style={{ ["--i" as string]: i }}
-            >
+            <span key={i} className={animated ? "brand-letter" : "inline-block"} style={{ ["--i" as string]: i }}>
               {ch}
             </span>
           ))}
         </span>
-        <span className={`mt-1.5 flex items-center gap-2 ${animated ? "brand-tag" : ""}`}>
-          <span className="stitch-line w-4 shrink-0 opacity-70" />
+        <span
+          className="fold grid"
+          style={{ gridTemplateRows: compact ? "0fr" : "1fr", opacity: compact ? 0 : 1 }}
+        >
           <span
-            className={`font-display text-[13px] tracking-[0.06em] whitespace-nowrap italic ${
+            className={`font-display block text-[12.5px] tracking-[0.05em] whitespace-nowrap italic ${animated ? "brand-tag" : ""} ${
               light ? "text-sand-300" : "text-cognac-600"
             }`}
           >
-            Élégance &amp; modestie
+            <span className="block pt-1">Élégance &amp; modestie</span>
           </span>
-          <span className="stitch-line w-4 shrink-0 opacity-70" />
         </span>
       </span>
     </Link>
@@ -70,10 +67,6 @@ const NAV = [
   { to: "/sur-mesure", label: "Sur mesure" },
   { to: "/galerie", label: "Galerie" },
 ];
-// Sur ordinateur, la marque est au centre (elle ramène à l'accueil) et le
-// menu se partage de part et d'autre.
-const NAV_LEFT = NAV.slice(1, 4);
-const NAV_RIGHT = NAV.slice(4);
 
 const ANNOUNCES = [
   { long: "Confection sur mesure en 5 jours · Livraison partout au Sénégal", short: "Sur mesure · Confection 5 jours" },
@@ -81,37 +74,38 @@ const ANNOUNCES = [
   { long: "Paiement Wave · Orange Money · Free Money", short: "Wave · Orange Money · Free Money" },
 ];
 
-function DeskLink({ to, label }: { to: string; label: string }) {
-  return (
-    <NavLink
-      to={to}
-      end
-      className={({ isActive }) =>
-        `relative py-1.5 text-[12px] font-medium uppercase tracking-[0.2em] transition-colors duration-300 after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-cognac-500 after:transition-transform after:duration-500 after:ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-cognac-600 hover:after:scale-x-100 ${
-          isActive ? "text-cognac-600 after:scale-x-100" : "text-cocoa-700"
-        }`
-      }
-    >
-      {label}
-    </NavLink>
-  );
-}
+const ICON_BTN =
+  "grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full text-cocoa-800 transition-all duration-300 hover:bg-cocoa-800 hover:text-sand-100";
 
 export default function Header() {
   const { cartCount, setCartOpen } = useStore();
   const [scrolled, setScrolled] = useState(false);
+  // Rétracté : en descendant la page, la capsule se replie en une petite
+  // pilule (marque, panier, menu). Elle se redéploie dès qu'on remonte.
+  const [retracted, setRetracted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [announce, setAnnounce] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 24);
+      if (y < 140) setRetracted(false);
+      else if (y > last + 6) setRetracted(true);
+      else if (y < last - 6) setRetracted(false);
+      last = y;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setMenuOpen(false), [location.pathname]);
+  useEffect(() => {
+    setMenuOpen(false);
+    setRetracted(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -128,6 +122,8 @@ export default function Header() {
     return () => window.clearInterval(id);
   }, []);
 
+  const fold = (open: boolean) => ({ gridTemplateColumns: open ? "1fr" : "0fr", opacity: open ? 1 : 0 });
+
   return (
     <>
       {/* bandeau annonce */}
@@ -140,44 +136,50 @@ export default function Header() {
         <IconSparkle size={11} className="shrink-0 text-cognac-300" />
       </div>
 
-      <header
-        className={`header-in sticky top-0 z-[55] transition-[background-color,box-shadow] duration-500 ${
-          scrolled
-            ? "bg-sand-100/92 shadow-[0_14px_44px_-20px_rgba(60,42,27,0.4)] backdrop-blur-md"
-            : "bg-sand-50/55 backdrop-blur-sm"
-        }`}
-      >
+      {/* capsule flottante */}
+      <header className="header-in pointer-events-none sticky top-0 z-[55] px-3 pt-3 sm:px-5">
         <div
-          className={`mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-5 transition-[padding] duration-500 lg:grid-cols-[1fr_auto_1fr] lg:px-8 ${
-            scrolled ? "py-2.5" : "py-3.5 lg:py-5"
+          className={`capsule pointer-events-auto mx-auto flex items-center justify-between gap-2 rounded-full border backdrop-blur-md ${
+            retracted ? "py-1.5 pr-1.5 pl-2" : "py-2 pr-2.5 pl-3 lg:pr-3 lg:pl-4"
+          } ${
+            scrolled
+              ? "border-cognac-500/30 bg-sand-50/90 shadow-[0_18px_50px_-22px_rgba(60,42,27,0.55)]"
+              : "border-sand-300/70 bg-sand-50/65 shadow-[0_10px_34px_-24px_rgba(60,42,27,0.45)]"
           }`}
+          style={{ maxWidth: retracted ? 292 : 1216 }}
         >
-          <nav className="hidden items-center gap-8 lg:flex" aria-label="Boutique">
-            {NAV_LEFT.map((n) => (
-              <DeskLink key={n.to} {...n} />
-            ))}
-          </nav>
+          <Logo compact={retracted} animated />
 
-          <Logo compact={scrolled} animated />
-
-          <div className="flex items-center justify-end gap-1.5">
-            <nav className="mr-5 hidden items-center gap-8 lg:flex" aria-label="La maison">
-              {NAV_RIGHT.map((n) => (
-                <DeskLink key={n.to} {...n} />
+          {/* menu complet : ordinateur, capsule déployée */}
+          <div className="fold hidden lg:grid" style={fold(!retracted)} aria-hidden={retracted}>
+            <nav className="flex items-center gap-1 whitespace-nowrap">
+              {NAV.slice(1).map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  end
+                  tabIndex={retracted ? -1 : undefined}
+                  className={({ isActive }) =>
+                    `rounded-full px-4 py-2.5 text-[11.5px] font-medium uppercase tracking-[0.18em] transition-all duration-400 ${
+                      isActive
+                        ? "bg-cocoa-800 text-sand-100"
+                        : "text-cocoa-700 hover:bg-cognac-500/15 hover:text-cognac-700"
+                    }`
+                  }
+                >
+                  {n.label}
+                </NavLink>
               ))}
             </nav>
-            <Link
-              to="/espace-client"
-              aria-label="Espace client"
-              className="grid h-11 w-11 place-items-center rounded-full text-cocoa-800 transition-all duration-300 hover:bg-cocoa-800 hover:text-sand-100"
-            >
-              <IconUser />
-            </Link>
-            <button
-              onClick={() => setCartOpen(true)}
-              aria-label="Ouvrir le panier"
-              className="relative grid h-11 w-11 cursor-pointer place-items-center rounded-full text-cocoa-800 transition-all duration-300 hover:bg-cocoa-800 hover:text-sand-100"
-            >
+          </div>
+
+          <div className="flex items-center gap-0.5">
+            <div className="fold grid" style={fold(!retracted)}>
+              <Link to="/espace-client" aria-label="Espace client" tabIndex={retracted ? -1 : undefined} className={ICON_BTN}>
+                <IconUser />
+              </Link>
+            </div>
+            <button onClick={() => setCartOpen(true)} aria-label="Ouvrir le panier" className={`relative ${ICON_BTN}`}>
               <IconBag />
               {cartCount > 0 && (
                 <span
@@ -188,29 +190,30 @@ export default function Header() {
                 </span>
               )}
             </button>
-            <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="Ouvrir le menu"
-              className="grid h-11 w-11 cursor-pointer place-items-center rounded-full text-cocoa-800 transition-colors hover:bg-cocoa-800 hover:text-sand-100 lg:hidden"
-            >
-              <IconMenu />
-            </button>
+            {/* bouton menu : toujours sur téléphone, et sur ordinateur quand la capsule est repliée */}
+            <div className={retracted ? "" : "lg:hidden"}>
+              <button
+                onClick={() => setMenuOpen(true)}
+                aria-label="Ouvrir le menu"
+                className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-cocoa-800 text-sand-100 transition-all duration-300 hover:bg-cognac-600 active:scale-95"
+              >
+                <IconMenu />
+              </button>
+            </div>
           </div>
         </div>
-        {/* bord cousu */}
-        <div aria-hidden className={`stitch-line transition-opacity duration-500 ${scrolled ? "opacity-70" : "opacity-40"}`} />
       </header>
 
       {/* menu mobile */}
       <div
-        className={`fixed inset-0 z-[85] transition-opacity duration-400 lg:hidden ${
+        className={`fixed inset-0 z-[85] transition-opacity duration-400 ${
           menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
         <div className="absolute inset-0 bg-cocoa-950/60" onClick={() => setMenuOpen(false)} />
         <div
-          className={`absolute top-0 right-0 flex h-full w-[86%] max-w-sm flex-col bg-cocoa-900 text-sand-100 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            menuOpen ? "translate-x-0" : "translate-x-full"
+          className={`absolute top-2 right-2 bottom-2 flex w-[88%] max-w-sm flex-col overflow-hidden rounded-[34px] bg-cocoa-900 text-sand-100 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            menuOpen ? "translate-x-0" : "translate-x-[105%]"
           }`}
         >
           <div className="flex items-center justify-between border-b border-sand-100/10 px-6 py-5">
@@ -241,7 +244,7 @@ export default function Header() {
             ))}
             <NavLink
               to="/espace-client"
-              className="mt-6 inline-flex items-center gap-3 self-start bg-cognac-500 px-6 py-3.5 text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-950 transition-colors hover:bg-cognac-300"
+              className="mt-6 inline-flex items-center gap-3 self-start rounded-full bg-cognac-500 px-6 py-3.5 text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-950 transition-colors hover:bg-cognac-300"
             >
               <IconUser size={16} /> Espace client
             </NavLink>

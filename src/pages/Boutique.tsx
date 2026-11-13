@@ -169,7 +169,7 @@ export default function Boutique() {
 
       {/* bandeau sur mesure */}
       <Reveal className="mt-20">
-        <div className="flex flex-col items-start justify-between gap-6 bg-cocoa-800 px-8 py-10 text-sand-100 sm:flex-row sm:items-center lg:px-12">
+        <div className="rounded-3xl flex flex-col items-start justify-between gap-6 bg-cocoa-800 px-8 py-10 text-sand-100 sm:flex-row sm:items-center lg:px-12">
           <div className="flex items-center gap-5">
             <span className="hidden h-14 w-14 shrink-0 place-items-center rounded-full border border-sand-100/25 text-cognac-300 sm:grid">
               <IconNeedle size={24} />

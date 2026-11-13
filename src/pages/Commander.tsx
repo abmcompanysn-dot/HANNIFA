@@ -235,7 +235,7 @@ export default function Commander() {
       </h1>
 
       {error && (
-        <p className="mt-8 border-l-2 border-cognac-600 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
+        <p className="rounded-3xl mt-8 border border-cognac-500/30 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
           {error}
         </p>
       )}
@@ -326,7 +326,7 @@ export default function Commander() {
                       <span className="flex flex-wrap items-center gap-2 font-medium text-cocoa-900">
                         {o.title}
                         {o.badge && (
-                          <span className="bg-cognac-500/15 px-2 py-0.5 text-[10px] tracking-[0.16em] text-cognac-700 uppercase">
+                          <span className="rounded-full bg-cognac-500/15 px-2 py-0.5 text-[10px] tracking-[0.16em] text-cognac-700 uppercase">
                             {o.badge}
                           </span>
                         )}

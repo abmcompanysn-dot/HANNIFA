@@ -303,7 +303,7 @@ export default function SurMesure() {
         {/* ---- contenu ---- */}
         <div className="min-w-0">
           {error && (
-            <p className="mb-6 border-l-2 border-cognac-600 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
+            <p className="rounded-3xl mb-6 border border-cognac-500/30 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
               {error}
             </p>
           )}
@@ -382,7 +382,7 @@ export default function SurMesure() {
                       value={contact.details}
                       onChange={(e) => setContact({ ...contact, details: e.target.value })}
                     />
-                    <p className="mt-2 border border-sand-300/80 bg-sand-100/80 px-4 py-3 text-[13px] text-cocoa-500 italic">
+                    <p className="rounded-3xl mt-2 border border-sand-300/80 bg-sand-100/80 px-4 py-3 text-[13px] text-cocoa-500 italic">
                       Exemple : « Je souhaite ce modèle avec ce tissu et des manches
                       légèrement plus larges. »
                     </p>
@@ -579,7 +579,7 @@ export default function SurMesure() {
                   <div className="mt-9">
                     <p className="label">Galerie de tissus HANI&rsquo;S</p>
                     {fabricsError && (
-                      <p className="mb-4 border-l-2 border-cognac-600 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
+                      <p className="rounded-3xl mb-4 border border-cognac-500/30 bg-cognac-500/10 px-5 py-4 text-sm text-cognac-700">
                         {fabricsError}
                       </p>
                     )}
@@ -641,7 +641,7 @@ export default function SurMesure() {
                         </div>
                         <label
                           htmlFor="fabric-file"
-                          className="cursor-pointer border border-sand-300 px-4 py-2 text-[11px] tracking-[0.18em] text-cocoa-700 uppercase transition-colors hover:border-cocoa-800"
+                          className="rounded-full cursor-pointer border border-sand-300 px-4 py-2 text-[11px] tracking-[0.18em] text-cocoa-700 uppercase transition-colors hover:border-cocoa-800"
                         >
                           Changer
                         </label>
@@ -679,7 +679,7 @@ export default function SurMesure() {
                 )}
 
                 {fabricSource === "conseil" && (
-                  <p className="mt-9 border border-sand-300 bg-sand-50 px-5 py-4 text-sm leading-relaxed text-cocoa-700">
+                  <p className="rounded-3xl mt-9 border border-sand-300 bg-sand-50 px-5 py-4 text-sm leading-relaxed text-cocoa-700">
                     Décrivez l'occasion et vos envies dans le commentaire ci-dessous : un
                     couturier vous proposera 2 à 3 étoffes adaptées, photos à l'appui, avant de
                     couper.

@@ -61,7 +61,7 @@ function stageFor(status: ApiOrder["status"]): number {
 function Timeline({ stage, cancelled }: { stage: number; cancelled?: boolean }) {
   if (cancelled) {
     return (
-      <p className="border border-cognac-500/40 bg-cognac-500/10 px-4 py-3 text-sm text-cognac-700">
+      <p className="rounded-3xl border border-cognac-500/40 bg-cognac-500/10 px-4 py-3 text-sm text-cognac-700">
         Cette commande a été annulée.
       </p>
     );
@@ -280,7 +280,7 @@ function AccountForm({ onLoggedIn }: { onLoggedIn: () => void }) {
         <p className="mt-2 text-sm text-cocoa-500">{titles[mode][1]}</p>
 
         {error && (
-          <p className="mt-5 border-l-2 border-cognac-600 bg-cognac-500/10 px-4 py-3 text-sm text-cognac-700" role="alert">
+          <p className="rounded-3xl mt-5 border border-cognac-500/30 bg-cognac-500/10 px-4 py-3 text-sm text-cognac-700" role="alert">
             {error}
           </p>
         )}
@@ -417,7 +417,7 @@ function ProfileCard() {
 
   return (
     <Reveal className="mt-10">
-      <div className="border border-sand-300/80 bg-gradient-to-br from-sand-50/95 to-sand-200/50 px-7 py-6">
+      <div className="rounded-3xl border border-sand-300/80 bg-gradient-to-br from-sand-50/95 to-sand-200/50 px-7 py-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="eyebrow">Mon compte</p>
@@ -573,7 +573,7 @@ export default function EspaceClient() {
       {/* commandes */}
       {!loading && !error && (
         orders.length === 0 ? (
-          <div className="mt-16 border border-dashed border-sand-400 px-8 py-20 text-center">
+          <div className="rounded-3xl mt-16 border border-dashed border-sand-400 px-8 py-20 text-center">
             <span className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-sand-300 text-cocoa-500">
               <IconBag size={30} />
             </span>
@@ -643,7 +643,7 @@ export default function EspaceClient() {
                                 <p className="label">Mesures transmises</p>
                                 <div className="flex flex-wrap gap-2">
                                   {Object.entries(o.measurements).map(([k, v]) => (
-                                    <span key={k} className="border border-sand-300 bg-sand-100/80 px-3 py-1.5 text-[12px] text-cocoa-700">
+                                    <span key={k} className="rounded-full border border-sand-300 bg-sand-100/80 px-3 py-1.5 text-[12px] text-cocoa-700">
                                       {k} : <strong className="font-semibold">{v} cm</strong>
                                     </span>
                                   ))}
@@ -672,7 +672,7 @@ export default function EspaceClient() {
                               href="https://wa.me/22675544742"
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center gap-3 border border-sand-300 px-4 py-3 text-sm text-cocoa-700 transition-colors hover:border-cognac-500 hover:text-cognac-600"
+                              className="rounded-3xl flex items-center gap-3 border border-sand-300 px-4 py-3 text-sm text-cocoa-700 transition-colors hover:border-cognac-500 hover:text-cognac-600"
                             >
                               <IconWhatsApp size={18} /> Une question sur cette commande ?
                             </a>
@@ -690,7 +690,7 @@ export default function EspaceClient() {
 
       {/* aide */}
       <Reveal className="mt-16">
-        <div className="flex flex-col items-start justify-between gap-6 bg-cocoa-800 px-8 py-9 text-sand-100 sm:flex-row sm:items-center">
+        <div className="rounded-3xl flex flex-col items-start justify-between gap-6 bg-cocoa-800 px-8 py-9 text-sand-100 sm:flex-row sm:items-center">
           <div>
             <p className="eyebrow !text-cognac-300">L'atelier reste à vos côtés</p>
             <p className="font-display mt-2 text-2xl font-medium sm:text-3xl">

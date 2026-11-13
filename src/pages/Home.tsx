@@ -142,7 +142,7 @@ export default function Home() {
 
             {/* badge nouvelle collection */}
             <Reveal delay={500} className="absolute top-8 -left-3 sm:-left-8">
-              <div className="animate-float border border-sand-300/70 bg-sand-50/95 px-5 py-4 shadow-[0_18px_50px_-20px_rgba(60,42,27,0.5)] backdrop-blur">
+              <div className="rounded-3xl animate-float border border-sand-300/70 bg-sand-50/95 px-5 py-4 shadow-[0_18px_50px_-20px_rgba(60,42,27,0.5)] backdrop-blur">
                 <p className="eyebrow !text-[10px]">Nouvelle collection</p>
                 <p className="font-display mt-1 text-2xl font-semibold text-cocoa-900 italic">Héritage</p>
                 <p className="text-[11px] text-cocoa-500">Automne — Hiver 2025</p>
@@ -311,7 +311,7 @@ export default function Home() {
                   <p className="font-display mt-1 text-5xl font-semibold text-sand-100">Femme</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {["Robes longues", "Cérémonie", "Ensembles", "Prière & khimars"].map((c) => (
-                      <span key={c} className="border border-sand-100/30 px-3 py-1 text-[10.5px] tracking-[0.14em] text-sand-200 uppercase">
+                      <span key={c} className="rounded-full border border-sand-100/30 px-3 py-1 text-[10.5px] tracking-[0.14em] text-sand-200 uppercase">
                         {c}
                       </span>
                     ))}
@@ -340,7 +340,7 @@ export default function Home() {
                   <p className="font-display mt-1 text-5xl font-semibold text-sand-100">Homme</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {["Ensembles", "Chemises", "Grands boubous"].map((c) => (
-                      <span key={c} className="border border-sand-100/30 px-3 py-1 text-[10.5px] tracking-[0.14em] text-sand-200 uppercase">
+                      <span key={c} className="rounded-full border border-sand-100/30 px-3 py-1 text-[10.5px] tracking-[0.14em] text-sand-200 uppercase">
                         {c}
                       </span>
                     ))}
@@ -368,7 +368,7 @@ export default function Home() {
                     className="h-[460px] w-full object-cover transition-transform duration-[1.6s] ease-out hover:scale-[1.05] lg:h-[540px]"
                   />
                 </div>
-                <div className="relative z-10 -mt-10 ml-8 inline-block bg-cocoa-800 px-6 py-5 text-sand-100 shadow-[0_24px_60px_-24px_rgba(46,31,19,0.7)]">
+                <div className="rounded-3xl relative z-10 -mt-10 ml-8 inline-block bg-cocoa-800 px-6 py-5 text-sand-100 shadow-[0_24px_60px_-24px_rgba(46,31,19,0.7)]">
                   <p className="font-display text-4xl font-semibold text-cognac-300">8 ans</p>
                   <p className="mt-1 text-[11px] tracking-[0.24em] uppercase">de savoir-faire transmis</p>
                 </div>
@@ -595,7 +595,7 @@ export default function Home() {
       {/* ================= APPEL FINAL ================= */}
       <section className="mx-auto max-w-7xl px-5 pt-24 lg:px-8 lg:pt-28">
         <Reveal>
-          <div className="relative overflow-hidden bg-cocoa-800 px-8 py-14 text-sand-100 sm:px-14">
+          <div className="rounded-3xl relative overflow-hidden bg-cocoa-800 px-8 py-14 text-sand-100 sm:px-14">
             <span aria-hidden className="absolute top-6 left-8 text-cognac-300"><IconSparkle size={16} /></span>
             <span aria-hidden className="absolute right-10 bottom-6 text-cognac-300/60"><IconSparkle size={22} /></span>
             <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
@@ -609,7 +609,7 @@ export default function Home() {
                 <Link to="/boutique" className="btn-light">
                   Commander maintenant
                 </Link>
-                <Link to="/sur-mesure" className="inline-flex items-center gap-3 border border-sand-100/30 px-8 py-4 text-[12px] font-medium tracking-[0.22em] uppercase transition-all hover:border-cognac-300 hover:text-cognac-300">
+                <Link to="/sur-mesure" className="rounded-full inline-flex items-center gap-3 border border-sand-100/30 px-8 py-4 text-[12px] font-medium tracking-[0.22em] uppercase transition-all hover:border-cognac-300 hover:text-cognac-300">
                   Sur mesure dès {fmtPrice(40000)}
                 </Link>
               </div>

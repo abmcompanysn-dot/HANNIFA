@@ -47,7 +47,7 @@ export default function ProductCard({
         <button
           onClick={quickAdd}
           aria-label={`Commander ${product.name}`}
-          className="absolute right-2.5 bottom-2.5 flex h-11 w-11 cursor-pointer items-center justify-center gap-2.5 rounded-full bg-cocoa-900/95 text-[11px] font-medium uppercase tracking-[0.24em] text-sand-100 backdrop-blur-sm transition-all duration-400 ease-out hover:bg-cognac-600 active:scale-[0.96] md:right-3 md:left-3 md:h-auto md:w-auto md:translate-y-[120%] md:rounded-none md:py-3.5 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
+          className="absolute right-2.5 bottom-2.5 flex h-11 w-11 cursor-pointer items-center justify-center gap-2.5 rounded-full bg-cocoa-900/95 text-[11px] font-medium uppercase tracking-[0.24em] text-sand-100 backdrop-blur-sm transition-all duration-400 ease-out hover:bg-cognac-600 active:scale-[0.96] md:right-3 md:left-3 md:h-auto md:w-auto md:translate-y-[120%] md:py-3.5 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
         >
           {/* téléphone : un rond discret, pour ne pas cacher le bas de la tenue */}
           <IconBag size={15} /> <span className="hidden md:inline">Commander</span>
@@ -63,10 +63,10 @@ export default function ProductCard({
           </span>
           {/* étiquettes hors de la photo : l'arche couperait un coin */}
           {product.isNew && (
-            <span className="bg-cognac-500 px-2 py-0.5 text-[9px] font-semibold tracking-[0.16em] text-sand-50">Nouveauté</span>
+            <span className="rounded-full bg-cognac-500 px-2 py-0.5 text-[9px] font-semibold tracking-[0.16em] text-sand-50">Nouveauté</span>
           )}
           {product.isBest && (
-            <span className="bg-cocoa-800 px-2 py-0.5 text-[9px] font-semibold tracking-[0.16em] text-sand-100">Best-seller</span>
+            <span className="rounded-full bg-cocoa-800 px-2 py-0.5 text-[9px] font-semibold tracking-[0.16em] text-sand-100">Best-seller</span>
           )}
         </p>
         <Link

@@ -43,7 +43,7 @@ function Toasts() {
       {toasts.map((t) => (
         <p
           key={t.id}
-          className="toast-in border-l-2 border-cognac-500 bg-cocoa-900 px-5 py-4 text-sm text-sand-100 shadow-[0_18px_44px_-16px_rgba(34,23,16,0.8)]"
+          className="toast-in rounded-full border border-cognac-500/60 bg-cocoa-900 px-6 py-3.5 text-sm text-sand-100 shadow-[0_18px_44px_-16px_rgba(34,23,16,0.8)]"
         >
           {t.msg}
         </p>
