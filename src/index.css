@@ -447,8 +447,11 @@ body {
     transform: none;
   }
 }
+/* « backwards » seulement : une animation qui reste appliquée après sa fin
+   garderait un repère de position et décalerait les éléments fixes de la
+   page (bouton Commander du téléphone, visionneuse de la galerie). */
 .page-in {
-  animation: page-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: page-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 /* ---------- ouverture : le fil qui se coud sous le titre ---------- */

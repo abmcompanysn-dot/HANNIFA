@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { fmtPrice } from "../data/catalog";
 import type { Product as UiProduct } from "../data/catalog";
 import { listProducts, ABMCYApiError } from "../services/abmcy";
@@ -8,6 +8,7 @@ import { useStore } from "../context/StoreContext";
 import ProductCard from "../components/ProductCard";
 import { Reveal, useInView } from "../components/Reveal";
 import { nuanceFor, type Nuance } from "../lib/nuance";
+import PaymentLogos from "../components/PaymentLogos";
 import {
   IconArrow,
   IconBag,
@@ -18,6 +19,7 @@ import {
   IconPhone,
   IconPlus,
   IconTruck,
+  IconWhatsApp,
 } from "../components/Icons";
 
 const CROPS = [
@@ -128,7 +130,7 @@ const ACCORDIONS = [
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const { addToCart } = useStore();
+  const { addToCart, setCartOpen } = useStore();
 
   const [products, setProducts] = useState<UiProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -163,6 +165,24 @@ export default function ProductDetail() {
   const [crop, setCrop] = useState(0);
   const [open, setOpen] = useState(0);
   const [sizeHint, setSizeHint] = useState(false);
+  const navigate = useNavigate();
+  const sizeRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [stickyCta, setStickyCta] = useState(false);
+  // Barre « Commander » du téléphone : visible seulement quand le bouton
+  // de la fiche est sorti de l'écran.
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => setStickyCta(!entries[0].isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loading, error, product?.id]);
+
+  // Une seule taille : déjà choisie, un geste de moins avant de commander.
+  useEffect(() => {
+    setSize(product && product.sizes.length === 1 ? product.sizes[0] : null);
+  }, [product]);
 
   if (loading) {
     return (
@@ -200,10 +220,12 @@ export default function ProductDetail() {
 
   const color = product.colors[ci];
 
-  const order = () => {
+  // buyNow : va droit au paiement (un clic de moins que le panier).
+  const order = (buyNow = false) => {
     if (!size) {
       setSizeHint(true);
       setTimeout(() => setSizeHint(false), 2200);
+      sizeRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
     addToCart(
@@ -220,6 +242,10 @@ export default function ProductDetail() {
       },
       qty
     );
+    if (buyNow) {
+      setCartOpen(false);
+      navigate("/commander");
+    }
   };
 
   const nuance = nuanceFor(product.name);
@@ -279,6 +305,14 @@ export default function ProductDetail() {
               Retouches incluses · Confection 5 jours
             </p>
           </div>
+          {/* l'acompte : ce qu'on paie vraiment aujourd'hui */}
+          <p className="mt-4 inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-cognac-500/35 bg-cognac-500/10 px-4 py-2 text-[13px] text-cocoa-800">
+            <IconCheck size={14} className="text-cognac-600" />
+            <span>
+              Aujourd&rsquo;hui <strong className="font-semibold text-cognac-700">{fmtPrice(Math.ceil((product.price * qty) / 2))}</strong> seulement
+            </span>
+            <span className="text-cocoa-500">— le reste à la livraison</span>
+          </p>
 
           {/* Une fiche sans description retombe sur le nom (voir mapProduct) :
               inutile de le répéter sous le titre. */}
@@ -320,7 +354,7 @@ export default function ProductDetail() {
           </div>
 
           {/* taille */}
-          <div className="mt-10">
+          <div ref={sizeRef} className="mt-10">
             <div className="flex items-center justify-between">
               <p className="label !mb-0">Taille</p>
               {sizeHint && (
@@ -332,7 +366,7 @@ export default function ProductDetail() {
                 <button
                   key={s}
                   onClick={() => setSize(s)}
-                  className={`min-w-14 cursor-pointer border px-4 py-3 text-sm font-medium transition-all duration-300 ${
+                  className={`min-w-14 cursor-pointer rounded-full border px-5 py-3 text-sm font-medium transition-all duration-300 ${
                     size === s
                       ? "border-cocoa-800 bg-cocoa-800 text-sand-100"
                       : "border-sand-300 bg-sand-50/60 text-cocoa-700 hover:border-cocoa-800"
@@ -348,8 +382,8 @@ export default function ProductDetail() {
           </div>
 
           {/* quantité + commander */}
-          <div className="mt-10 flex flex-wrap items-stretch gap-3">
-            <div className="flex items-center border border-sand-300 bg-sand-50/60">
+          <div ref={ctaRef} className="mt-10 flex flex-wrap items-stretch gap-3">
+            <div className="flex items-center overflow-hidden rounded-full border border-sand-300 bg-sand-50/60">
               <button
                 onClick={() => setQty(Math.max(1, qty - 1))}
                 aria-label="Diminuer la quantité"
@@ -366,13 +400,40 @@ export default function ProductDetail() {
                 <IconPlus size={15} />
               </button>
             </div>
-            <button onClick={order} className="btn-primary flex-1 basis-52">
-              <IconBag size={16} /> Commander — {fmtPrice(product.price * qty)}
+            <button onClick={() => order(true)} className="btn-primary flex-1 basis-52">
+              Commander maintenant — {fmtPrice(product.price * qty)} <IconArrow size={16} />
             </button>
           </div>
 
-          <Link to={`/sur-mesure?modele=${product.id}`} className="btn-ghost mt-3 w-full">
-            <IconNeedle size={16} /> Personnaliser ce modèle sur mesure
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <button onClick={() => order(false)} className="btn-ghost !px-5">
+              <IconBag size={16} /> Ajouter au panier
+            </button>
+            <a
+              href={`https://wa.me/22675544742?text=${encodeURIComponent(
+                `Bonjour HANI'S, je souhaite commander : ${product.name} (${fmtPrice(product.price)})${
+                  size ? `, taille ${size}` : ""
+                }, coloris ${color.name}. ${window.location.href}`
+              )}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-3 rounded-full border border-[#1f8f52]/50 px-5 py-4 text-[12px] font-medium tracking-[0.2em] text-[#17703f] uppercase transition-all duration-300 hover:bg-[#1f8f52] hover:text-sand-50 active:scale-[0.97]"
+            >
+              <IconWhatsApp size={17} /> Commander sur WhatsApp
+            </a>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="text-[11px] tracking-[0.2em] text-cocoa-500 uppercase">Paiement sécurisé</p>
+            <PaymentLogos />
+          </div>
+
+          <Link
+            to={`/sur-mesure?modele=${product.id}`}
+            className="group mt-6 inline-flex items-center gap-2.5 text-[12px] font-medium tracking-[0.2em] text-cocoa-700 uppercase transition-colors hover:text-cognac-600"
+          >
+            <IconNeedle size={15} /> Personnaliser ce modèle sur mesure
+            <IconArrow size={14} className="transition-transform duration-300 group-hover:translate-x-1.5" />
           </Link>
 
           {/* accordéons */}
@@ -420,6 +481,24 @@ export default function ProductDetail() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* téléphone : le bouton reste sous le pouce quand celui de la fiche n'est plus à l'écran */}
+      <div
+        className={`fixed right-[88px] bottom-6 left-3 z-[74] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden ${
+          stickyCta ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-24 opacity-0"
+        }`}
+      >
+        <button
+          onClick={() => order(true)}
+          tabIndex={stickyCta ? undefined : -1}
+          className="flex h-14 w-full cursor-pointer items-center justify-between gap-3 rounded-full bg-cocoa-900 pr-2 pl-5 text-sand-100 shadow-[0_18px_44px_-14px_rgba(34,23,16,0.8)] active:scale-[0.98]"
+        >
+          <span className="font-display text-xl font-semibold text-cognac-300">{fmtPrice(product.price * qty)}</span>
+          <span className="inline-flex h-10 items-center gap-2 rounded-full bg-cognac-500 px-4 text-[11px] font-semibold tracking-[0.18em] text-cocoa-950 uppercase">
+            Commander <IconArrow size={14} />
+          </span>
+        </button>
       </div>
 
       {/* similaires */}

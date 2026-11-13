@@ -118,6 +118,10 @@ export default function CartDrawer() {
                 <span>Livraison — Dakar & partout au Sénégal</span>
                 <span className="text-cognac-600">Offerte</span>
               </div>
+              <div className="mb-3 flex items-center justify-between rounded-full border border-cognac-500/35 bg-cognac-500/10 px-4 py-2 text-[13px] text-cocoa-800">
+                <span>À payer aujourd&rsquo;hui (acompte 50 %)</span>
+                <strong className="font-semibold text-cognac-700">{fmtPrice(Math.ceil(cartTotal / 2))}</strong>
+              </div>
               <div className="mb-5 flex items-baseline justify-between">
                 <span className="text-[12px] font-medium uppercase tracking-[0.22em] text-cocoa-700">
                   Total
@@ -133,7 +137,7 @@ export default function CartDrawer() {
                 }}
                 className="btn-primary w-full"
               >
-                Finaliser la commande <IconArrow size={16} />
+                Commander et payer <IconArrow size={16} />
               </button>
               <p className="mt-3 text-center text-[11px] tracking-wide text-cocoa-500">
                 Wave · Orange Money · Free Money · Visa / Mastercard
