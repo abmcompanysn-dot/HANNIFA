@@ -31,6 +31,9 @@ export default function Avis() {
   const { orderId } = useParams();
   const validOrder = orderId && UUID.test(orderId) ? orderId : undefined;
   const [firstName, setFirstName] = useState("");
+  // Nom affiché avec l'avis : prérempli avec le prénom de la commande,
+  // la cliente l'écrit comme elle veut (« Awa N. », « Mme Diop »…).
+  const [name, setName] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -48,7 +51,9 @@ export default function Avis() {
     getOrder(validOrder)
       .then((o) => {
         if (cancelled) return;
-        setFirstName((o.customer_name || "").trim().split(/\s+/)[0] || "");
+        const first = (o.customer_name || "").trim().split(/\s+/)[0] || "";
+        setFirstName(first);
+        setName((n) => n || first);
         setOrderNumber(o.order_number || "");
       })
       .catch(() => {});
@@ -87,13 +92,19 @@ export default function Avis() {
       setError("Touchez les étoiles pour donner votre note.");
       return;
     }
+    const signature = name.trim().replace(/\s+/g, " ").slice(0, 60);
+    if (!signature) {
+      setError("Indiquez votre nom (ou votre prénom) pour signer votre avis.");
+      return;
+    }
     setError(null);
     setSending(true);
     try {
       await createReview({
         order_id: validOrder,
         rating,
-        comment: comment.trim(),
+        // Le nom signe l'avis, sur une dernière ligne.
+        comment: [comment.trim(), `— ${signature}`].filter(Boolean).join("\n"),
         photo_urls: photoUrl ? [photoUrl] : [],
       });
       setDone(true);
@@ -172,7 +183,21 @@ export default function Avis() {
         </div>
         <p className="font-display mt-2 h-8 text-center text-2xl text-cognac-600 italic">{WORDS[shown]}</p>
 
-        {/* 2 — quelques mots */}
+        {/* 2 — le nom */}
+        <label className="label mt-7" htmlFor="avis-nom">
+          Votre nom
+        </label>
+        <input
+          id="avis-nom"
+          className="field"
+          maxLength={60}
+          autoComplete="name"
+          placeholder="ex : Awa N."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
+        {/* 3 — quelques mots */}
         <label className="label mt-7" htmlFor="avis-mot">
           Quelques mots (facultatif)
         </label>
@@ -185,7 +210,7 @@ export default function Avis() {
           onChange={(e) => setComment(e.target.value)}
         />
 
-        {/* 3 — une photo */}
+        {/* 4 — une photo */}
         <p className="label mt-7">Une photo de vous dans la tenue (facultatif)</p>
         <div className="flex items-center gap-4">
           {preview && (
