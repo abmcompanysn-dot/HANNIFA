@@ -15,6 +15,7 @@ import {
 } from "../services/abmcy";
 import { mapProducts } from "../lib/mapProduct";
 import { MaskLines, Reveal } from "../components/Reveal";
+import GuideTour, { type GuideStep } from "../components/GuideTour";
 import {
   IconArrow,
   IconBag,
@@ -31,6 +32,30 @@ const STEPS = [
   { n: 2, label: "Vos mesures", icon: <IconRuler size={17} /> },
   { n: 3, label: "Votre tissu", icon: <IconSwatch size={17} /> },
   { n: 4, label: "Récapitulatif", icon: <IconCheck size={17} /> },
+];
+
+// Visite guidée de la commande sur mesure, pour une première fois.
+const GUIDE: GuideStep[] = [
+  {
+    icon: <IconPhone size={30} />,
+    title: "Dites-nous qui vous êtes",
+    text: "Votre nom, votre numéro et votre adresse de livraison. C'est tout ce qu'il faut pour commencer.",
+  },
+  {
+    icon: <IconRuler size={30} />,
+    title: "Vos mesures, comme vous voulez",
+    text: "Tapez-les en centimètres, ou prenez simplement en photo la feuille où elles sont notées. Pas de mesures ? L'atelier vous appelle.",
+  },
+  {
+    icon: <IconSwatch size={30} />,
+    title: "Choisissez le tissu",
+    text: "Un tissu de la maison, une photo du vôtre, ou laissez l'atelier vous conseiller.",
+  },
+  {
+    icon: <IconBag size={30} />,
+    title: "Payez la moitié, on s'occupe du reste",
+    text: "Acompte de 50 % par Wave, Orange Money ou Free Money. Le solde se règle à la livraison, 5 jours plus tard.",
+  },
 ];
 
 const DIAGRAM: Record<"femme" | "homme", { n: number; d: string }[]> = {
@@ -103,6 +128,41 @@ export default function SurMesure() {
   const [fabricUploading, setFabricUploading] = useState(false);
   const [fabricUploadError, setFabricUploadError] = useState<string | null>(null);
   const [comment, setComment] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
+  // Mesures : saisies au clavier, ou envoyées en photo (feuille, carnet du
+  // tailleur, capture d'écran…). La photo part dès qu'elle est choisie.
+  const [measMode, setMeasMode] = useState<"saisie" | "photo">("saisie");
+  const [measPhotoUrl, setMeasPhotoUrl] = useState<string | null>(null);
+  const [measPreview, setMeasPreview] = useState<string | null>(null);
+  const [measUploading, setMeasUploading] = useState(false);
+  const [measError, setMeasError] = useState<string | null>(null);
+
+  const onMeasFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    if (!f.type.startsWith("image/")) {
+      setMeasError("Choisissez une photo (image). Pour un document, prenez-le simplement en photo.");
+      return;
+    }
+    setMeasError(null);
+    setMeasPhotoUrl(null);
+    const reader = new FileReader();
+    reader.onload = () => setMeasPreview(reader.result as string);
+    reader.readAsDataURL(f);
+    setMeasUploading(true);
+    try {
+      const result = await uploadFabricPhoto(f);
+      setMeasPhotoUrl(result.url);
+    } catch (err) {
+      setMeasPreview(null);
+      setMeasError(
+        err instanceof ABMCYApiError ? err.message : "La photo n'est pas partie. Vérifiez votre connexion et réessayez."
+      );
+    } finally {
+      setMeasUploading(false);
+    }
+  };
   const [error, setError] = useState<string | null>(null);
 
   const fields = gender === "femme" ? MEASURES_FEMME : MEASURES_HOMME;
@@ -130,6 +190,10 @@ export default function SurMesure() {
         setError("Merci d'indiquer au minimum votre nom, votre téléphone et votre adresse de livraison.");
         return;
       }
+    }
+    if (step === 2 && measUploading) {
+      setError("La photo de vos mesures est en cours d'envoi, encore un instant.");
+      return;
     }
     if (step === 3) {
       if (fabricSource === "maison" && !fabricId) {
@@ -173,7 +237,7 @@ export default function SurMesure() {
       kind: "custom",
       productId: forModel?.id,
       name: forModel ? `Sur mesure — ${forModel.name}` : `Création sur mesure ${gender === "femme" ? "Femme" : "Homme"}`,
-      detail: `${fabricSource === "maison" ? `Tissu ${fabric?.name ?? ""}` : fabricSource === "envoi" ? `Tissu client (${fileName})` : "Tissu conseillé par l'atelier"} · ${filledMeasures.length} mesures transmises`,
+      detail: `${fabricSource === "maison" ? `Tissu ${fabric?.name ?? ""}` : fabricSource === "envoi" ? `Tissu client (${fileName})` : "Tissu conseillé par l'atelier"} · ${measPhotoUrl ? "photo des mesures envoyée" : `${filledMeasures.length} mesures transmises`}`,
       price: total,
       image: forModel?.image ?? "images/tissus.jpg",
       custom: {
@@ -181,6 +245,7 @@ export default function SurMesure() {
         forModel: forModel?.name,
         contact,
         measurements,
+        measuresPhotoUrl: measPhotoUrl ?? undefined,
         fabricSource,
         fabricId: fabricSource === "maison" ? (fabricId ?? undefined) : undefined,
         fabricName: fabricSource === "maison" && fabric ? fabric.name : undefined,
@@ -222,8 +287,16 @@ export default function SurMesure() {
               </>
             )}
           </p>
+          <button
+            onClick={() => setGuideOpen(true)}
+            className="mt-5 inline-flex cursor-pointer items-center gap-2.5 rounded-full border border-cognac-500/40 bg-cognac-500/10 px-5 py-2.5 text-[12px] font-medium tracking-[0.18em] text-cognac-700 uppercase transition-all duration-300 hover:bg-cognac-500 hover:text-sand-50"
+          >
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-cognac-500 text-[11px] font-semibold text-sand-50">?</span>
+            Comment ça marche
+          </button>
         </Reveal>
       </div>
+      <GuideTour steps={GUIDE} storageKey="hanis_guide_sur_mesure" open={guideOpen} onClose={() => setGuideOpen(false)} />
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[290px_1fr] lg:gap-14">
         {/* ---- rail d'étapes ---- */}
@@ -404,6 +477,88 @@ export default function SurMesure() {
                   rappellera pour ajuster.
                 </p>
 
+                {/* deux façons de donner ses mesures */}
+                <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                  {(
+                    [
+                      { m: "saisie" as const, t: "Je tape mes mesures", d: "En centimètres, avec le schéma", icon: <IconRuler size={20} /> },
+                      { m: "photo" as const, t: "J'envoie une photo", d: "La feuille où elles sont notées", icon: <IconUpload size={20} /> },
+                    ]
+                  ).map((o) => (
+                    <button
+                      key={o.m}
+                      onClick={() => setMeasMode(o.m)}
+                      aria-pressed={measMode === o.m}
+                      className={`flex cursor-pointer items-center gap-4 rounded-3xl border px-5 py-4 text-left transition-all duration-300 ${
+                        measMode === o.m
+                          ? "border-cognac-500 bg-cognac-500/12 shadow-[0_0_0_3px_rgba(168,116,55,0.15)]"
+                          : "border-sand-300 bg-sand-50 hover:border-cognac-500"
+                      }`}
+                    >
+                      <span
+                        className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors duration-300 ${
+                          measMode === o.m ? "bg-cocoa-800 text-cognac-300" : "bg-sand-200 text-cocoa-700"
+                        }`}
+                      >
+                        {o.icon}
+                      </span>
+                      <span>
+                        <span className="font-display block text-xl leading-tight font-semibold text-cocoa-900">{o.t}</span>
+                        <span className="mt-0.5 block text-[12px] text-cocoa-500">{o.d}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {measMode === "photo" && (
+                  <div className="mt-7 rounded-3xl border border-dashed border-cognac-500/50 bg-sand-100/60 p-6 text-center sm:p-8">
+                    {measPreview ? (
+                      <div className="mx-auto max-w-xs">
+                        <img
+                          src={measPreview}
+                          alt="Photo de vos mesures"
+                          className={`mx-auto max-h-72 rounded-2xl border border-sand-300 object-contain transition-opacity duration-300 ${
+                            measUploading ? "opacity-50" : ""
+                          }`}
+                        />
+                        {measUploading && <p className="mt-4 text-sm text-cocoa-500">Envoi de la photo en cours…</p>}
+                        {measPhotoUrl && (
+                          <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-cognac-500/15 px-4 py-2 text-sm font-medium text-cognac-700">
+                            <IconCheck size={15} /> Photo bien reçue par l&rsquo;atelier
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-cocoa-800 text-cognac-300">
+                          <IconUpload size={26} />
+                        </span>
+                        <p className="font-display mt-4 text-2xl font-semibold text-cocoa-900">Une photo suffit</p>
+                        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-cocoa-500">
+                          La feuille de votre tailleur, votre carnet, une capture d&rsquo;écran : tant que les
+                          chiffres sont lisibles, l&rsquo;atelier s&rsquo;en occupe.
+                        </p>
+                      </>
+                    )}
+                    {measError && <p className="mt-4 text-sm font-medium text-cognac-700">{measError}</p>}
+                    <div className="mt-6 flex flex-wrap justify-center gap-3">
+                      <label className={`btn-primary !px-6 ${measUploading ? "pointer-events-none opacity-60" : ""}`}>
+                        <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={onMeasFile} />
+                        {measPreview ? "Reprendre la photo" : "Prendre une photo"}
+                      </label>
+                      <label className={`btn-ghost !px-6 ${measUploading ? "pointer-events-none opacity-60" : ""}`}>
+                        <input type="file" accept="image/*" className="sr-only" onChange={onMeasFile} />
+                        Choisir dans mes photos
+                      </label>
+                    </div>
+                    <p className="mt-5 text-[12.5px] text-cocoa-500">
+                      Votre photo n&rsquo;est vue que par l&rsquo;atelier HANI&rsquo;S, pour coudre votre tenue.
+                    </p>
+                  </div>
+                )}
+
+                {measMode === "saisie" && (
+                <>
                 {/* femme / homme */}
                 <div className="mt-7 grid grid-cols-2 gap-3">
                   {(
@@ -537,6 +692,8 @@ export default function SurMesure() {
                     </p>
                   </div>
                 </div>
+                </>
+                )}
               </div>
             </Reveal>
           )}

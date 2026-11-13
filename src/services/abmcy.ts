@@ -386,7 +386,7 @@ export async function createCustomOrder(data: {
   customer_email?: string;
   shipping_address: string;
   total_amount: number;
-  measurements: Record<string, number>;
+  measurements: Record<string, number | string>;
   fabric_id?: string;
   fabric_source?: 'maison' | 'envoi_photo' | 'conseil_atelier';
   notes?: string;
@@ -718,9 +718,10 @@ export async function removeFromCart(itemId: string, cartToken: string): Promise
  * Créer un avis (non publié par défaut)
  */
 export async function createReview(data: {
-  order_id: string;
+  order_id?: string;
   rating: number;
   comment: string;
+  photo_urls?: string[];
 }): Promise<Review> {
   return apiRequest('/reviews', {
     method: 'POST',

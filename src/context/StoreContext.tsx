@@ -20,6 +20,9 @@ export type CustomDetails = {
     details: string;
   };
   measurements: Record<string, string>;
+  /** Adresse de la photo des mesures envoyée par la cliente (à la place ou
+   * en plus des mesures saisies). */
+  measuresPhotoUrl?: string;
   fabricSource: "maison" | "envoi" | "conseil";
   fabricId?: string;
   fabricName?: string;

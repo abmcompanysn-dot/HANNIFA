@@ -159,11 +159,14 @@ export default function Commander() {
 
       if (customItem?.custom) {
         const c = customItem.custom;
-        const measurements: Record<string, number> = {};
+        const measurements: Record<string, number | string> = {};
         for (const [k, v] of Object.entries(c.measurements)) {
           const n = parseFloat(v);
           if (!Number.isNaN(n)) measurements[k] = n;
         }
+        // Photo des mesures : rangée avec les mesures, la boutique la voit
+        // dans la commande.
+        if (c.measuresPhotoUrl) measurements.photo_url = c.measuresPhotoUrl;
         const fabricSourceMap: Record<string, "maison" | "envoi_photo" | "conseil_atelier"> = {
           maison: "maison",
           envoi: "envoi_photo",

@@ -12,6 +12,7 @@ import SurMesure from "./pages/SurMesure";
 import Commander from "./pages/Commander";
 import EspaceClient from "./pages/EspaceClient";
 import Galerie from "./pages/Galerie";
+import Avis from "./pages/Avis";
 import SuspendedGate from "./components/SuspendedGate";
 import PaiementConfirme from "./pages/PaiementConfirme";
 import { ScrollProgressBar } from "./components/ScrollFx";
@@ -124,6 +125,8 @@ export default function App() {
               <Route path="/paiement-confirme" element={<PaiementConfirme />} />
               <Route path="/galerie" element={<Galerie />} />
               <Route path="/espace-client" element={<EspaceClient />} />
+              <Route path="/avis" element={<Avis />} />
+              <Route path="/avis/:orderId" element={<Avis />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             </PageFade>
